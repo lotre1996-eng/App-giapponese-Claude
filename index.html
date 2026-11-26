@@ -1,0 +1,1255 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Linea Ideale</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+/* Layout: un palco centrale (mappa a tutto schermo con cruscotto), barra di replay, schede delle curve scorrevoli, grafici sincronizzati.
+   Palette: asfalto grigio-verde freddo, accento verde acqua, rosso freno e verde gas come nella telemetria vera, ambra per i dati reali. */
+:root {
+  --bg: #ECEFEF; --panel: #FAFBFB; --stage: #F3F6F6; --ink: #121A1D; --ink2: #50606A; --line: #D2D9DB; --asfalto: #BCC7CA; --kerb: #E3E9EA; --band: #D9E0E2;
+  --accent: #0A726D; --accent-ink: #FFFFFF; --brake: #D1342E; --throttle: #1C9A52; --real: #B45309; --ghost: #6F8088; --focus: #0A726D; --glass: rgba(250,251,251,.88);
+  --f-display: 'Barlow Condensed', 'Arial Narrow', sans-serif;
+  --f-body: 'IBM Plex Sans', system-ui, sans-serif;
+  --f-data: 'IBM Plex Mono', ui-monospace, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0D1316; --panel: #141C20; --stage: #0A1013; --ink: #E7EEF0; --ink2: #9CABB1; --line: #26343A; --asfalto: #2A373C; --kerb: #1B262B; --band: #1B262B;
+    --accent: #3CCFC4; --accent-ink: #062321; --brake: #FF6B63; --throttle: #4CD98A; --real: #F2B05C; --ghost: #8FA3AA; --focus: #3CCFC4; --glass: rgba(20,28,32,.86);
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0D1316; --panel: #141C20; --stage: #0A1013; --ink: #E7EEF0; --ink2: #9CABB1; --line: #26343A; --asfalto: #2A373C; --kerb: #1B262B; --band: #1B262B;
+  --accent: #3CCFC4; --accent-ink: #062321; --brake: #FF6B63; --throttle: #4CD98A; --real: #F2B05C; --ghost: #8FA3AA; --focus: #3CCFC4; --glass: rgba(20,28,32,.86);
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--ink); font-family: var(--f-body); font-size: 14px; line-height: 1.5; }
+.page { padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); padding-block: 20px 40px; }
+.wrap { max-width: 1360px; margin: 0 auto; display: flex; flex-direction: column; gap: 14px; }
+h1, h2, h3, .lbl { font-family: var(--f-display); text-transform: uppercase; letter-spacing: .06em; font-weight: 600; margin: 0; }
+h1 { font-size: 2rem; line-height: 1; }
+h2 { font-size: 1.05rem; color: var(--ink2); }
+h3 { font-size: 1.25rem; letter-spacing: .04em; }
+.lbl { font-size: .76rem; color: var(--ink2); letter-spacing: .09em; }
+.sub { color: var(--ink2); margin: 6px 0 0; max-width: 64ch; }
+.mono { font-family: var(--f-data); font-variant-numeric: tabular-nums; }
+a { color: var(--accent); }
+button { font: inherit; color: inherit; }
+:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+.panel { background: var(--panel); border: 1px solid var(--line); border-radius: 6px; }
+
+/* barra delle scelte */
+.bar { display: grid; gap: 12px 18px; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); padding: 12px 14px; }
+.field { display: flex; flex-direction: column; gap: 5px; min-width: 0; }
+select { font: inherit; color: var(--ink); background: var(--bg); border: 1px solid var(--line); border-radius: 4px; padding: 7px 10px; min-height: 38px; width: 100%; }
+.chips { display: flex; gap: 6px; flex-wrap: wrap; }
+.chips label { position: relative; flex: 1 1 0; min-width: 44px; }
+.chips input { position: absolute; opacity: 0; inset: 0; cursor: pointer; }
+.chips span { display: flex; align-items: center; justify-content: center; gap: 6px; padding: 6px 4px; min-height: 38px; overflow: hidden; text-overflow: ellipsis; border: 1px solid var(--line); border-radius: 4px; background: var(--bg); font-size: 12.5px; white-space: nowrap; }
+.chips svg { width: 18px; height: 18px; flex: none; fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
+.chips input:checked + span { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); font-weight: 600; }
+.chips input:focus-visible + span { outline: 2px solid var(--focus); outline-offset: 2px; }
+.chips.wx span { flex-direction: column; gap: 2px; font-size: 11.5px; padding: 5px 2px; min-height: 52px; }
+.chips.compact span { min-height: 30px; padding: 3px 8px; font-size: 12px; }
+input[type=range] { width: 100%; accent-color: var(--accent); }
+.rangeval { display: flex; justify-content: space-between; align-items: center; gap: 10px; }
+.note { font-size: 12.5px; color: var(--ink2); }
+
+/* palco */
+.stage { position: relative; height: clamp(380px, 66vh, 700px); background: var(--stage); border: 1px solid var(--line); border-radius: 6px; overflow: hidden; touch-action: pan-y; }
+#map { position: absolute; inset: 0; width: 100%; height: 100%; display: block; cursor: crosshair; touch-action: pan-y; }
+.stage::after { content: ""; position: absolute; inset: 0; pointer-events: none; opacity: 0; transition: opacity .6s; background-image: repeating-linear-gradient(100deg, rgba(150,185,205,.5) 0 1px, transparent 1px 15px); background-size: 150px 150px; animation: rain .55s linear infinite; }
+.stage.rain1::after { opacity: .10; } .stage.rain2::after { opacity: .20; } .stage.rain3::after { opacity: .34; }
+@keyframes rain { to { background-position: -30px 150px; } }
+.hud { position: absolute; background: var(--glass); border: 1px solid var(--line); border-radius: 6px; padding: 8px 12px; backdrop-filter: blur(4px); }
+.tl { left: 10px; top: 10px; max-width: calc(100% - 20px); }
+.stagebar { display: flex; flex-wrap: wrap; gap: 8px 20px; align-items: center; margin-bottom: -6px; }
+.sb { display: flex; align-items: center; gap: 8px; }
+.bl { left: 10px; bottom: 10px; display: flex; align-items: flex-end; gap: 14px; }
+.laptime { font-family: var(--f-data); font-weight: 500; font-size: 1.7rem; line-height: 1.1; }
+.hud .small { font-size: 12px; color: var(--ink2); }
+.pos { color: var(--brake); } .neg { color: var(--throttle); }
+.g-speed b { display: block; font-family: var(--f-data); font-weight: 500; font-size: 2.6rem; line-height: 1; min-width: 3ch; text-align: right; }
+.g-speed small, .g-gear small, .g-bars small, .g-gg small { display: block; font-size: 10.5px; letter-spacing: .08em; text-transform: uppercase; color: var(--ink2); font-family: var(--f-display); font-weight: 600; text-align: center; }
+.g-speed small { text-align: right; }
+.g-gear b { display: grid; place-items: center; width: 46px; height: 52px; border: 2px solid var(--ink); border-radius: 4px; font-family: var(--f-data); font-weight: 500; font-size: 1.9rem; line-height: 1; }
+.g-bars { display: flex; gap: 8px; align-items: flex-end; }
+.g-bars > div { display: flex; flex-direction: column; align-items: center; gap: 3px; }
+.vbar { width: 12px; height: 56px; border: 1px solid var(--line); border-radius: 3px; background: var(--bg); position: relative; overflow: hidden; }
+.vbar i { position: absolute; left: 0; right: 0; bottom: 0; height: 0; }
+#h-thr { background: var(--throttle); } #h-brk { background: var(--brake); }
+.g-gg svg { display: block; width: 58px; height: 58px; }
+.banner { position: absolute; left: 50%; transform: translateX(-50%); top: 10px; padding: 6px 14px; border-radius: 999px; background: var(--glass); border: 1px solid var(--line); font-size: 13px; white-space: nowrap; max-width: calc(100% - 330px); overflow: hidden; text-overflow: ellipsis; }
+.banner.brk { background: var(--brake); border-color: var(--brake); color: #fff; font-weight: 600; }
+.banner:empty { display: none; }
+.legend { position: absolute; right: 10px; bottom: 10px; display: flex; flex-wrap: wrap; gap: 4px 14px; justify-content: flex-end; align-items: center; max-width: 52%; font-size: 11.5px; color: var(--ink2); background: var(--glass); border: 1px solid var(--line); border-radius: 6px; padding: 5px 10px; }
+.legend i { display: inline-block; width: 14px; height: 4px; border-radius: 2px; margin-right: 5px; vertical-align: middle; }
+.grad { display: inline-block; width: 90px; height: 7px; border-radius: 2px; vertical-align: middle; margin: 0 5px; }
+.tip { position: absolute; pointer-events: none; font-family: var(--f-data); font-size: 12px; background: var(--ink); color: var(--bg); padding: 3px 8px; border-radius: 4px; white-space: nowrap; transform: translate(12px, -130%); z-index: 3; }
+.zoomout { border: 1px solid var(--line); background: var(--bg); border-radius: 4px; padding: 3px 9px; cursor: pointer; font-size: 12px; min-height: 30px; }
+.zoomout:hover, .btn:hover { border-color: var(--accent); }
+
+/* replay */
+.transport { display: flex; flex-wrap: wrap; gap: 10px 14px; align-items: center; padding: 10px 14px; }
+.play { width: 44px; height: 44px; border-radius: 50%; border: 0; background: var(--accent); color: var(--accent-ink); display: grid; place-items: center; cursor: pointer; flex: none; }
+.play svg { width: 20px; height: 20px; fill: currentColor; }
+.scrub { position: relative; flex: 1 1 260px; min-width: 200px; padding-bottom: 22px; }
+.scrub input { display: block; }
+.ticks { position: absolute; left: 8px; right: 8px; bottom: 0; height: 20px; }
+.ticks button { position: absolute; transform: translateX(-50%); min-width: 20px; height: 20px; padding: 0 3px; border: 1px solid var(--line); background: var(--bg); border-radius: 3px; font-family: var(--f-data); font-size: 10.5px; cursor: pointer; color: var(--ink2); line-height: 1; }
+.ticks button:hover, .ticks button.on { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+.clock { font-family: var(--f-data); font-size: 13px; min-width: 15ch; text-align: right; }
+.stats { display: flex; flex-wrap: wrap; gap: 4px 22px; padding: 0 2px; font-size: 12.5px; color: var(--ink2); }
+.stats b { font-family: var(--f-data); font-weight: 500; color: var(--ink); }
+
+/* schede curva */
+.strip { display: flex; gap: 10px; overflow-x: auto; padding: 2px 2px 10px; scroll-snap-type: x proximity; }
+.card { flex: 0 0 218px; scroll-snap-align: start; text-align: left; background: var(--panel); border: 1px solid var(--line); border-radius: 6px; padding: 10px 12px; cursor: pointer; display: flex; flex-direction: column; gap: 6px; transition: transform .15s, border-color .15s; }
+.card:hover { border-color: var(--accent); transform: translateY(-2px); }
+.card.sel { border-color: var(--accent); box-shadow: 0 0 0 2px var(--accent) inset; }
+.card .top { display: flex; align-items: center; gap: 8px; }
+.card .nm { font-weight: 600; font-size: 13px; line-height: 1.2; min-width: 0; overflow-wrap: anywhere; }
+.card .dir { margin-left: auto; font-size: 18px; color: var(--ink2); line-height: 1; }
+.card .kv { display: flex; justify-content: space-between; font-size: 12px; color: var(--ink2); }
+.card .kv b { color: var(--ink); font-family: var(--f-data); font-weight: 500; }
+.card svg { width: 100%; height: 38px; display: block; }
+.badge { display: inline-grid; place-items: center; min-width: 26px; height: 22px; font-family: var(--f-data); font-size: 12px; padding: 0 6px; border-radius: 3px; background: var(--ink); color: var(--bg); flex: none; }
+
+/* dettaglio curva */
+.detail { padding: 14px 16px; display: grid; gap: 12px; animation: pop .25s ease-out; }
+@keyframes pop { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+.d-head { display: flex; flex-wrap: wrap; gap: 8px 12px; align-items: center; }
+.d-head .acts { margin-left: auto; display: flex; gap: 8px; flex-wrap: wrap; }
+.btn { border: 1px solid var(--line); background: var(--bg); border-radius: 4px; padding: 6px 12px; min-height: 36px; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; font-size: 13px; }
+.btn.pri { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); font-weight: 600; }
+.btn input { display: none; }
+.steps { display: grid; gap: 10px; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); }
+.step { border-left: 3px solid var(--line); padding: 2px 0 2px 10px; min-width: 0; }
+.step.b { border-color: var(--brake); } .step.g { border-color: var(--throttle); } .step.a { border-color: var(--accent); } .step.m { border-color: var(--ink2); }
+.step b { display: block; font-family: var(--f-data); font-weight: 500; font-size: 1.1rem; }
+.step span { font-size: 12.5px; color: var(--ink2); }
+.tl-svg { width: 100%; height: 54px; display: block; }
+
+#charts { padding: 10px 6px 6px; min-width: 0; }
+#charts svg { display: block; width: 100%; touch-action: pan-y; }
+svg text { font-family: var(--f-data); font-size: 10.5px; fill: var(--ink2); }
+.tools { padding: 0; }
+.imports { display: flex; flex-wrap: wrap; gap: 10px 14px; align-items: center; padding: 12px 16px; }
+.imports .w { display: flex; align-items: center; gap: 8px; }
+.imports input[type=number] { width: 74px; font: inherit; color: var(--ink); background: var(--bg); border: 1px solid var(--line); border-radius: 4px; padding: 6px 8px; min-height: 36px; }
+.msg { font-size: 12.5px; color: var(--ink2); }
+.msg.err { color: var(--brake); }
+details { padding: 12px 16px; border-top: 1px solid var(--line); }
+summary { cursor: pointer; font-family: var(--f-display); text-transform: uppercase; letter-spacing: .08em; font-weight: 600; }
+details p, details li { color: var(--ink2); max-width: 78ch; }
+details ul { padding-left: 18px; margin: 8px 0; }
+pre { background: var(--bg); border: 1px solid var(--line); border-radius: 4px; padding: 10px 12px; overflow-x: auto; font-family: var(--f-data); font-size: 12px; margin: 8px 0; }
+.warn { padding: 8px 12px; border-left: 3px solid var(--real); background: var(--panel); font-size: 12.5px; color: var(--ink2); border-radius: 0 4px 4px 0; border: 1px solid var(--line); border-left: 3px solid var(--real); }
+
+@media (max-width: 720px) {
+  .stage { height: clamp(340px, 56vh, 520px); }
+  .g-speed b { font-size: 1.9rem; } .g-gear b { width: 36px; height: 42px; font-size: 1.5rem; } .vbar { height: 44px; } .g-gg { display: none; }
+  .bl { gap: 10px; padding: 6px 8px; } .laptime { font-size: 1.3rem; } .legend { display: none; }
+  .banner { top: auto; bottom: 86px; max-width: calc(100% - 20px); }
+  .clock { min-width: 0; margin-left: auto; }
+}
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
+</style>
+
+<div class="page"><div class="wrap">
+  <header>
+    <h1>Linea Ideale</h1>
+    <p class="sub">Guarda il giro ideale, frena dove si frena, scegli la marcia giusta: cambia pista, auto e meteo e la traiettoria si ricalcola.</p>
+  </header>
+
+  <section class="panel bar" aria-label="Impostazioni">
+    <div class="field"><label class="lbl" for="sel-track">Pista</label><select id="sel-track"></select></div>
+    <div class="field"><label class="lbl" for="sel-champ">Campionato</label><select id="sel-champ"></select></div>
+    <div class="field"><span class="lbl" id="l-weather">Meteo</span><div class="chips" role="radiogroup" aria-labelledby="l-weather" id="seg-weather"></div></div>
+    <div class="field"><span class="lbl" id="l-aero">Assetto aerodinamico</span><div class="chips" role="radiogroup" aria-labelledby="l-aero" id="seg-aero"></div></div>
+    <div class="field"><div class="rangeval"><label class="lbl" for="rng-temp">Temperatura aria</label><span class="mono" id="v-temp"></span></div><input type="range" id="rng-temp" min="0" max="42" step="1" value="22"></div>
+    <div class="field"><label class="lbl" for="sel-cmp">Confronta con</label><select id="sel-cmp"></select></div>
+  </section>
+  <div class="warn" id="champnote"></div>
+
+  <div class="stagebar">
+    <div class="sb"><span class="lbl">Colora per</span><div class="chips compact" role="radiogroup" aria-label="Colora la linea per" id="seg-color"></div></div>
+    <div class="sb"><span class="lbl">Camera</span><div class="chips compact" role="radiogroup" aria-label="Camera" id="seg-cam"></div></div>
+    <div class="sb"><span class="lbl">Larghezza pista</span><div class="chips compact" role="radiogroup" aria-label="Larghezza della pista" id="seg-wide"></div></div>
+    <div class="sb"><button class="zoomout" id="b-zin" type="button" aria-label="Ingrandisci la mappa">+</button><button class="zoomout" id="b-zout" type="button" aria-label="Riduci la mappa">−</button><button class="zoomout" id="b-zoomout" type="button" hidden>Torna alla pista intera</button></div>
+  </div>
+  <section class="stage" id="stage" aria-label="Mappa interattiva">
+    <svg id="map" role="img" aria-label="Mappa della pista con la linea ideale. Passa il cursore o trascina per scorrere il giro."></svg>
+    <div class="hud tl" id="hud-tl"></div>
+    <div class="banner" id="banner" aria-live="off"></div>
+    <div class="hud bl" id="hud-bl">
+      <div class="g-speed"><b id="h-speed">0</b><small>km/h</small></div>
+      <div class="g-gear"><b id="h-gear">1</b><small>marcia</small></div>
+      <div class="g-bars"><div><div class="vbar"><i id="h-thr"></i></div><small>gas</small></div><div><div class="vbar"><i id="h-brk"></i></div><small>freno</small></div></div>
+      <div class="g-gg"><svg viewBox="-30 -30 60 60" aria-hidden="true"><circle r="27" fill="none" stroke="var(--line)"/><circle r="13.5" fill="none" stroke="var(--line)" stroke-dasharray="2 3"/><line x1="-27" x2="27" stroke="var(--line)"/><line y1="-27" y2="27" stroke="var(--line)"/><circle id="h-gg" r="3.8" fill="var(--accent)"/></svg><small>g</small></div>
+    </div>
+    <div class="legend" id="legend"></div>
+    <div class="tip" id="tip" hidden></div>
+  </section>
+
+  <section class="panel transport" aria-label="Replay">
+    <button class="play" id="b-play" type="button" aria-label="Avvia o ferma il replay"></button>
+    <div class="chips compact" role="radiogroup" aria-label="Velocità del replay" id="seg-speed" style="flex:0 0 auto"></div>
+    <div class="scrub"><input type="range" id="rng-scrub" min="0" max="1000" value="0" step="1" aria-label="Posizione nel giro"><div class="ticks" id="ticks"></div></div>
+    <span class="clock" id="clock"></span>
+  </section>
+  <div class="stats" id="stats"></div>
+
+  <section class="detail panel" id="detail" hidden></section>
+  <section aria-label="Curve"><div class="strip" id="strip"></div></section>
+
+  <section class="panel" id="charts" aria-label="Telemetria simulata"></section>
+
+  <section class="panel tools">
+    <div class="imports">
+      <label class="btn"><input type="file" id="f-track" accept=".geojson,.json,.csv,.txt">Carica un tracciato</label>
+      <span class="w"><label class="note" for="n-width">Larghezza pista (m)</label><input type="number" id="n-width" min="5" max="30" step="0.5" value="12"></span>
+      <label class="btn"><input type="file" id="f-tel" accept=".csv,.txt">Sovrapponi telemetria reale</label>
+      <button class="btn" id="b-clear" type="button" hidden>Rimuovi telemetria</button>
+      <span class="msg" id="imp-msg"></span>
+    </div>
+    <details>
+      <summary>Come preparare i file</summary>
+      <p><b>Tracciato.</b> GeoJSON con una LineString di longitudine e latitudine (per esempio quelli ricavati da OpenStreetMap, come i file del progetto open source f1-circuits su GitHub), oppure un CSV con due colonne lon,lat. Il motore chiude l'anello, calcola la linea ideale e riconosce le curve dai minimi di velocità. Vale per qualsiasi pista su asfalto all'aperto.</p>
+      <p><b>Telemetria.</b> CSV con le colonne Distance (m), Speed (km/h) e, se ci sono, nGear, Throttle (0-100) e Brake. Si può esportare con FastF1:</p>
+<pre>import fastf1
+s = fastf1.get_session(2026, 'Monza', 'Q'); s.load()
+tel = s.laps.pick_fastest().get_car_data().add_distance()
+tel[['Distance','Speed','nGear','Throttle','Brake']].to_csv('monza_pole.csv', index=False)</pre>
+      <p>La distanza viene riportata alla lunghezza del giro simulato. La telemetria compare tratteggiata in ambra sui grafici e il riepilogo mostra lo scarto medio di velocità.</p>
+    </details>
+    <details>
+      <summary>Cosa è misurato e cosa è stimato</summary>
+      <ul>
+        <li><b>Misurato.</b> Lunghezza ufficiale delle piste e tempi di pole 2026 di Monza (<a target="_blank" rel="noopener" href="https://www.crash.net/f1/results/1103771/1/f1-2026-italian-grand-prix-full-qualifying-result-monza">1:21.786</a>), Spa (<a target="_blank" rel="noopener" href="https://www.motorsport.com/f1/news/f1-belgian-gp-qualifying-report/10839833/">1:44.361</a>), Monaco (<a target="_blank" rel="noopener" href="https://www.crash.net/f1/results/1097307/1/2026-f1-monaco-grand-prix-full-qualifying-results">1:12.051</a>) e Silverstone (<a target="_blank" rel="noopener" href="https://www.crash.net/f1/results/1100236/1/2026-f1-silverstone-full-british-gp-qualifying-results">1:28.111</a>). Dati tecnici F1 2026 dal <a target="_blank" rel="noopener" href="https://www.formula1.com/en/latest/article/from-smaller-cars-to-a-bigger-budget-cap-12-rule-changes-you-need-to-know-about-in.56uUTFhB0z5j3iZfhC0rGP">regolamento</a>: 768 kg, motore da circa 400 kW più 350 kW elettrici.</li>
+        <li><b>Stimato.</b> I tracciati integrati sono schemi costruiti da sequenza e raggio delle curve, chiusi e scalati alla lunghezza ufficiale: la forma non è quella esatta. Le auto sono modelli a punto materiale con downforce, ellisse di aderenza e limite di potenza. Per la F1 aderenza e carico sono tarati sulle quattro pole, con un fattore per pista che assorbe ciò che il modello non vede. WEC, GT3 e F3 hanno parametri indicativi, senza taratura sui tempi.</li>
+        <li><b>Non modellato.</b> Dislivelli, dossi, vento, usura gomme, carburante, gestione dell'energia, traffico, regole di BoP aggiornate. Con la pioggia il modello riduce aderenza e larghezza di pista usabile (si evita la gomma depositata), ma non l'acquaplaning né i ruscelli.</li>
+      </ul>
+    </details>
+  </section>
+</div></div>
+
+<script>
+/* Motore di simulazione del giro: tracciato -> linea ideale -> profilo di velocita'.
+   Modello quasi-statico con punto materiale, downforce, ellisse di aderenza e limite di potenza.
+   Funziona in Node e nel browser (global: Engine). */
+(function (root) {
+  'use strict';
+  const G = 9.81;
+
+  /* ---------- Tracciati: sequenze di rettilinei e curve (tartaruga) ----------
+     S(len, {flex, name}) = rettilineo; R/L(raggio m, angolo gradi, nome) = curva dx/sx.
+     Le curve con lo stesso nome consecutive formano un'unica "curva" (es. una chicane).
+     Le dimensioni sono stime: la geometria e' chiusa e scalata alla lunghezza ufficiale. */
+  const S = (len, o) => ({ t: 'S', len, flex: !!(o && o.flex), name: (o && o.name) || null });
+  const R = (r, a, name) => ({ t: 'R', r, a, name: name || null });
+  const L = (r, a, name) => ({ t: 'L', r, a, name: name || null });
+
+  const TRACKS = {
+    monza: {
+      id: 'monza', name: 'Monza', country: 'Italia', length: 5793, width: 13, kerb: 0.4, alt: 160,
+      cal: 1.122, segs: [
+        S(720, { flex: true }),
+        R(24, 72, 'Variante del Rettifilo'), S(15, { name: 'Variante del Rettifilo' }), L(24, 68, 'Variante del Rettifilo'),
+        S(190), R(420, 86, 'Curva Grande'),
+        S(320, { flex: true }),
+        L(38, 58, 'Variante della Roggia'), S(18, { name: 'Variante della Roggia' }), R(38, 52, 'Variante della Roggia'),
+        S(320), R(95, 72, 'Lesmo 1'), S(170), R(58, 82, 'Lesmo 2'),
+        S(900, { flex: true }),
+        L(60, 45, 'Variante Ascari'), S(30, { name: 'Variante Ascari' }), R(48, 60, 'Variante Ascari'),
+        S(30, { name: 'Variante Ascari' }), L(75, 40, 'Variante Ascari'),
+        S(900, { flex: true }),
+        R(150, 178, 'Curva Parabolica'),
+        S(420, { flex: true })
+      ],
+      ref: { 2026: 81.786 }
+    },
+    spa: {
+      id: 'spa', name: 'Spa-Francorchamps', country: 'Belgio', length: 7004, width: 14, kerb: 0.4, alt: 400,
+      cal: 0.888, segs: [
+        S(367, { flex: true }),
+        R(26, 86, 'La Source'),
+        S(257),
+        L(160, 24, 'Eau Rouge'),
+        R(200, 69, 'Raidillon'),
+        L(400, 21, 'Raidillon'),
+        S(1248, { flex: true }),
+        R(48, 75, 'Les Combes'),
+        S(25, { name: 'Les Combes' }),
+        L(50, 52, 'Les Combes'),
+        S(234),
+        R(95, 90, 'Malmedy'),
+        S(149),
+        R(45, 131, 'Bruxelles'),
+        S(212),
+        L(150, 60, 'Pouhon'),
+        S(201, { flex: true }),
+        R(250, 31, 'Fagnes'),
+        L(250, 29, 'Fagnes'),
+        S(215, { flex: true }),
+        L(90, 39, 'Stavelot'),
+        S(306, { flex: true }),
+        L(650, 21, 'Blanchimont'),
+        S(676, { flex: true }),
+        L(35, 11, 'Bus Stop'),
+        S(18, { name: 'Bus Stop' }),
+        R(35, 135, 'Bus Stop'),
+        S(468, { flex: true })
+      ],
+      ref: { 2026: 104.361 }
+    },
+    monaco: {
+      id: 'monaco', name: 'Monaco', country: 'Principato di Monaco', length: 3337, width: 10.5, kerb: -0.9, alt: 10,
+      cal: 0.937, segs: [
+        S(248, { flex: true }),
+        R(20, 90, 'Sainte Devote'),
+        S(383, { flex: true }),
+        R(400, 10),
+        S(131, { flex: true }),
+        L(45, 72, 'Massenet'),
+        S(89, { flex: true }),
+        R(32, 39, 'Casino'),
+        S(84, { flex: true }),
+        R(55, 29, 'Mirabeau Haute'),
+        S(70),
+        R(17, 41, 'Mirabeau Bas'),
+        S(50),
+        R(12, 89, 'Grand Hotel'),
+        S(151, { flex: true }),
+        R(50, 39, 'Portier'),
+        S(144, { flex: true }),
+        R(500, 19),
+        S(94, { flex: true }),
+        L(30, 33, 'Nouvelle Chicane'),
+        S(12, { name: 'Nouvelle Chicane' }),
+        R(30, 36, 'Nouvelle Chicane'),
+        S(42, { flex: true }),
+        L(40, 82, 'Tabac'),
+        S(72, { flex: true }),
+        L(45, 40, 'Piscine'),
+        S(15, { name: 'Piscine' }),
+        R(45, 64, 'Piscine'),
+        S(15, { name: 'Piscine' }),
+        L(45, 45, 'Piscine'),
+        S(15, { name: 'Piscine' }),
+        R(45, 47, 'Piscine'),
+        S(136, { flex: true }),
+        R(18, 84, 'La Rascasse'),
+        S(50, { flex: true }),
+        R(22, 46, 'Anthony Noghes'),
+        S(70, { flex: true })
+      ],
+      ref: { 2026: 72.051 }
+    },
+    silverstone: {
+      id: 'silverstone', name: 'Silverstone', country: 'Regno Unito', length: 5891, width: 14, kerb: 0.4, alt: 130,
+      cal: 1.051, segs: [
+        S(420, { flex: true }), R(230, 45, 'Abbey'), S(60), L(260, 25, 'Farm'), S(80, { flex: true }),
+        R(45, 100, 'Village'), S(60), L(40, 100, 'The Loop'), S(200, { flex: true }), L(110, 55, 'Aintree'),
+        S(900, { flex: true }),
+        L(65, 70, 'Brooklands'), S(60), R(55, 140, 'Luffield'), S(60), R(320, 70, 'Woodcote'),
+        S(270, { flex: true }), R(170, 90, 'Copse'), S(150, { flex: true }),
+        L(220, 30, 'Maggotts-Becketts'), S(20, { name: 'Maggotts-Becketts' }), R(150, 70, 'Maggotts-Becketts'),
+        S(15, { name: 'Maggotts-Becketts' }), L(130, 55, 'Maggotts-Becketts'), S(50), R(220, 70, 'Chapel'),
+        S(720, { flex: true }), R(150, 90, 'Stowe'), S(200, { flex: true }), L(65, 90, 'Vale'), S(100), R(90, 100, 'Club'),
+        S(250, { flex: true })
+      ],
+      ref: { 2026: 88.111 }
+    }
+  };
+
+  /* ---------- Campionati e auto ---------- */
+  // m kg, P kW (potenza media utilizzabile sul giro), mu aderenza gomme, ClA/CdA m^2, tf quota trazione,
+  // brk decelerazione massima in frenata (m/s^2), gears: velocita' massime (km/h) per marcia.
+  const CHAMPS = {
+    f1: {
+      id: 'f1', name: 'Formula 1 (2026)', tyre: 'Pirelli slick C1-C5',
+      note: 'Motore 400 kW + MGU-K 350 kW. Peso minimo 768 kg. Aderenza e carico tarati sulle pole 2026 di Monza, Spa, Monaco e Silverstone (scarto entro il 2%).',
+      car: { m: 790, P: 560, mu: 1.25, ClA: 4.1, CdA: 1.3, tf: 0.62, brk: 50, gears: [78, 112, 148, 182, 216, 252, 290, 350] }
+    },
+    wec: {
+      id: 'wec', name: 'WEC Hypercar', tyre: 'Michelin slick',
+      note: 'Balance of Performance: potenza limitata a circa 500 kW. Peso minimo circa 1030 kg.',
+      car: { m: 1060, P: 480, mu: 1.3, ClA: 2.6, CdA: 0.95, tf: 0.55, brk: 38, gears: [65, 100, 138, 176, 215, 265, 350] }
+    },
+    gt3: {
+      id: 'gt3', name: 'GT World Challenge (GT3)', tyre: 'Pirelli / Michelin slick',
+      note: 'Auto derivate dalla serie con BoP. Peso circa 1300 kg, ABS e controllo di trazione.',
+      car: { m: 1300, P: 380, mu: 1.15, ClA: 1.5, CdA: 1.05, tf: 0.55, brk: 26, gears: [70, 105, 140, 180, 225, 290] }
+    },
+    f3: {
+      id: 'f3', name: 'FIA Formula 3', tyre: 'Pirelli slick',
+      note: 'Monoposto monomarca, circa 285 kW, peso minimo 673 kg.',
+      car: { m: 690, P: 270, mu: 1.3, ClA: 2.1, CdA: 0.95, tf: 0.62, brk: 45, gears: [60, 95, 130, 165, 205, 285] }
+    }
+  };
+
+  /* ---------- Meteo ---------- */
+  const WEATHER = {
+    dry:   { id: 'dry',   name: 'Asciutto',         mu: 1.00, width: 1.00, tyre: 'Slick' },
+    damp:  { id: 'damp',  name: 'Umido',            mu: 0.80, width: 0.90, tyre: 'Intermedie' },
+    wet:   { id: 'wet',   name: 'Bagnato',          mu: 0.64, width: 0.80, tyre: 'Pioggia' },
+    storm: { id: 'storm', name: 'Pioggia forte',    mu: 0.50, width: 0.70, tyre: 'Pioggia estrema' }
+  };
+
+  const AERO = { low: { cl: 0.8, cd: 0.85, name: 'Basso carico' }, mid: { cl: 1, cd: 1, name: 'Medio' }, high: { cl: 1.2, cd: 1.15, name: 'Alto carico' } };
+
+  /* ---------- Geometria ---------- */
+  function closeSegments(segsIn) {
+    const segs = segsIn.map(s => Object.assign({}, s));
+    function walk() {
+      let x = 0, y = 0, th = 0;
+      segs.forEach(s => {
+        if (s.t === 'S') { x += s.len * Math.cos(th); y += s.len * Math.sin(th); }
+        else {
+          const sign = s.t === 'L' ? 1 : -1, dth = sign * s.a * Math.PI / 180;
+          const cx = x - sign * s.r * Math.sin(th), cy = y + sign * s.r * Math.cos(th);
+          th += dth; x = cx + sign * s.r * Math.sin(th); y = cy - sign * s.r * Math.cos(th);
+        }
+      });
+      return [x, y, th + 2 * Math.PI];
+    }
+    // parametri liberi: lunghezze dei rettilinei flessibili e angoli di tutte le curve
+    const params = [];
+    segs.forEach((s, i) => {
+      if (s.t === 'S') { if (s.flex) params.push({ i, key: 'len', sigma: 0.2 * s.len, min: 25 }); }
+      else params.push({ i, key: 'a', sigma: 0.12 * s.a, min: 4 });
+    });
+    const orig = segs.map(s => (s.t === 'S' ? s.len : s.a));
+    let c = walk();
+    for (let it = 0; it < 60 && Math.hypot(c[0], c[1], c[2] * 100) > 1e-4; it++) {
+      const J = params.map(p => {
+        const h = p.key === 'len' ? 0.5 : 0.01, v0 = segs[p.i][p.key];
+        segs[p.i][p.key] = v0 + h; const c2 = walk(); segs[p.i][p.key] = v0;
+        return [(c2[0] - c[0]) / h * 1, (c2[1] - c[1]) / h * 1, (c2[2] - c[2]) / h * (p.key === 'len' ? 0 : 1)];
+      });
+      // M = J S J^T (3x3); angoli in gradi per il parametro, radianti per il vincolo
+      const M = [[0, 0, 0], [0, 0, 0], [0, 0, 0]];
+      params.forEach((p, k) => { for (let r = 0; r < 3; r++) for (let q = 0; q < 3; q++) M[r][q] += J[k][r] * J[k][q] * p.sigma * p.sigma; });
+      const det = M[0][0] * (M[1][1] * M[2][2] - M[1][2] * M[2][1]) - M[0][1] * (M[1][0] * M[2][2] - M[1][2] * M[2][0]) + M[0][2] * (M[1][0] * M[2][1] - M[1][1] * M[2][0]);
+      const inv = [[0, 0, 0], [0, 0, 0], [0, 0, 0]];
+      inv[0][0] = (M[1][1] * M[2][2] - M[1][2] * M[2][1]) / det; inv[0][1] = (M[0][2] * M[2][1] - M[0][1] * M[2][2]) / det; inv[0][2] = (M[0][1] * M[1][2] - M[0][2] * M[1][1]) / det;
+      inv[1][0] = (M[1][2] * M[2][0] - M[1][0] * M[2][2]) / det; inv[1][1] = (M[0][0] * M[2][2] - M[0][2] * M[2][0]) / det; inv[1][2] = (M[0][2] * M[1][0] - M[0][0] * M[1][2]) / det;
+      inv[2][0] = (M[1][0] * M[2][1] - M[1][1] * M[2][0]) / det; inv[2][1] = (M[0][1] * M[2][0] - M[0][0] * M[2][1]) / det; inv[2][2] = (M[0][0] * M[1][1] - M[0][1] * M[1][0]) / det;
+      const lam = [0, 1, 2].map(r => -(inv[r][0] * c[0] + inv[r][1] * c[1] + inv[r][2] * c[2]));
+      params.forEach((p, k) => {
+        const d = p.sigma * p.sigma * (J[k][0] * lam[0] + J[k][1] * lam[1] + J[k][2] * lam[2]);
+        segs[p.i][p.key] = Math.max(p.min, segs[p.i][p.key] + 0.8 * d);
+      });
+      c = walk();
+    }
+    let maxRel = 0, maxLen = 0;
+    segs.forEach((s, i) => {
+      const v = s.t === 'S' ? s.len : s.a, rel = Math.abs(v - orig[i]) / orig[i];
+      if (s.t === 'S') maxLen = Math.max(maxLen, Math.abs(v - orig[i])); maxRel = Math.max(maxRel, rel);
+    });
+    return { segs, closureErr: Math.hypot(c[0], c[1]), headingErr: c[2], maxDelta: maxLen, angleScale: 1 + maxRel };
+  }
+
+  function buildCenterline(track, ds) {
+    const cl = closeSegments(track.segs);
+    const px = [0], py = [0], ps = [0], segStart = [];
+    let x = 0, y = 0, th = 0, s = 0;
+    const step = 0.5;
+    cl.segs.forEach((sg, i) => {
+      segStart[i] = s;
+      if (sg.t === 'S') {
+        const n = Math.max(1, Math.round(sg.len / step)), h = sg.len / n;
+        for (let k = 0; k < n; k++) { x += h * Math.cos(th); y += h * Math.sin(th); s += h; px.push(x); py.push(y); ps.push(s); }
+      } else {
+        const sign = sg.t === 'L' ? 1 : -1, tot = sg.a * Math.PI / 180, arc = sg.r * tot;
+        const n = Math.max(2, Math.round(arc / step)), dth = sign * tot / n, h = arc / n;
+        for (let k = 0; k < n; k++) { x += h * Math.cos(th + dth / 2); y += h * Math.sin(th + dth / 2); th += dth; s += h; px.push(x); py.push(y); ps.push(s); }
+      }
+    });
+    segStart.push(s);
+    // chiusura del residuo con una piccola deriva lineare
+    const gx = px[px.length - 1], gy = py[py.length - 1];
+    for (let k = 0; k < px.length; k++) { px[k] -= gx * ps[k] / s; py[k] -= gy * ps[k] / s; }
+    const sc = track.length / s;
+    const N = Math.round(track.length / ds), h = track.length / N;
+    const cx = new Float64Array(N), cy = new Float64Array(N);
+    let k = 0;
+    for (let i = 0; i < N; i++) {
+      const target = i * h / sc;
+      while (k < ps.length - 2 && ps[k + 1] < target) k++;
+      const t = (target - ps[k]) / (ps[k + 1] - ps[k]);
+      cx[i] = (px[k] + t * (px[k + 1] - px[k])) * sc; cy[i] = (py[k] + t * (py[k + 1] - py[k])) * sc;
+    }
+    // finestre delle curve con nome
+    const corners = [];
+    cl.segs.forEach((sg, i) => {
+      if (!sg.name) return;
+      const a = segStart[i] * sc, b = segStart[i + 1] * sc;
+      const last = corners[corners.length - 1];
+      if (last && last.name === sg.name && Math.abs(last.end - a) < 1) { last.end = b; if (sg.t !== 'S') { last.dir = last.dir || sg.t; last.turn += sg.a; } }
+      else corners.push({ name: sg.name, start: a, end: b, dir: sg.t === 'S' ? null : sg.t, turn: sg.t === 'S' ? 0 : sg.a });
+    });
+    return { cx, cy, N, ds: h, corners, closure: cl };
+  }
+
+  /* ---------- Linea di curvatura minima con vincoli (insieme attivo) ---------- */
+  function minCurvature(cx, cy, lo, hi) {
+    const N = cx.length;
+    const nx = new Float64Array(N), ny = new Float64Array(N);
+    for (let i = 0; i < N; i++) {
+      const a = (i - 1 + N) % N, b = (i + 1) % N;
+      let tx = cx[b] - cx[a], ty = cy[b] - cy[a]; const l = Math.hypot(tx, ty); tx /= l; ty /= l;
+      nx[i] = -ty; ny[i] = tx;
+    }
+    // ordinamento "ripiegato": rende la matrice ciclica a banda stretta
+    const pos = new Int32Array(N);
+    { let a = 0, b = N - 1, k = 0; while (a <= b) { pos[a++] = k++; if (a <= b) pos[b--] = k++; } }
+    let bw = 0;
+    for (let i = 0; i < N; i++) {
+      const id = [(i - 1 + N) % N, i, (i + 1) % N];
+      for (let p = 0; p < 3; p++) for (let q = 0; q < p; q++) bw = Math.max(bw, Math.abs(pos[id[p]] - pos[id[q]]));
+    }
+    const W = bw + 1;
+    const A0 = new Float64Array(N * W), rhs0 = new Float64Array(N);
+    const add = (i, j, v) => { let p = pos[i], q = pos[j]; if (p < q) { const t = p; p = q; q = t; } A0[p * W + (p - q)] += v; };
+    for (let i = 0; i < N; i++) {
+      const im = (i - 1 + N) % N, ip = (i + 1) % N, id = [im, i, ip], cf = [1, -2, 1];
+      const rx = cx[im] - 2 * cx[i] + cx[ip], ry = cy[im] - 2 * cy[i] + cy[ip];
+      for (let p = 0; p < 3; p++) {
+        const vx = cf[p] * nx[id[p]], vy = cf[p] * ny[id[p]];
+        rhs0[pos[id[p]]] -= vx * rx + vy * ry;
+        for (let q = 0; q <= p; q++) add(id[p], id[q], vx * cf[q] * nx[id[q]] + vy * cf[q] * ny[id[q]]);
+      }
+    }
+    function chol(A, b) {
+      const Lm = new Float64Array(N * W);
+      for (let i = 0; i < N; i++) {
+        for (let j = Math.max(0, i - bw); j <= i; j++) {
+          let sum = A[i * W + (i - j)];
+          for (let k = Math.max(0, i - bw, j - bw); k < j; k++) sum -= Lm[i * W + (i - k)] * Lm[j * W + (j - k)];
+          Lm[i * W + (i - j)] = j === i ? Math.sqrt(Math.max(sum, 1e-18)) : sum / Lm[j * W];
+        }
+      }
+      const y = new Float64Array(N);
+      for (let i = 0; i < N; i++) { let sum = b[i]; for (let k = Math.max(0, i - bw); k < i; k++) sum -= Lm[i * W + (i - k)] * y[k]; y[i] = sum / Lm[i * W]; }
+      const x = new Float64Array(N);
+      for (let i = N - 1; i >= 0; i--) { let sum = y[i]; for (let k = i + 1; k <= Math.min(N - 1, i + bw); k++) sum -= Lm[k * W + (k - i)] * x[k]; x[i] = sum / Lm[i * W]; }
+      return x;
+    }
+    function mul(x) {
+      const y = new Float64Array(N);
+      for (let p = 0; p < N; p++) for (let q = Math.max(0, p - bw); q <= p; q++) {
+        const v = A0[p * W + (p - q)]; y[p] += v * x[q]; if (q !== p) y[q] += v * x[p];
+      }
+      return y;
+    }
+    const state = new Int8Array(N); const BIG = 1e9;
+    let dP = new Float64Array(N);
+    for (let iter = 0; iter < 80; iter++) {
+      const A = A0.slice(), b = rhs0.slice();
+      for (let i = 0; i < N; i++) if (state[i]) { const p = pos[i]; A[p * W] += BIG; b[p] += BIG * (state[i] > 0 ? hi[i] : lo[i]); }
+      dP = chol(A, b);
+      const g = mul(dP); let changed = false;
+      for (let i = 0; i < N; i++) {
+        const p = pos[i], d = dP[p];
+        if (state[i] === 0) {
+          if (d > hi[i] + 1e-6) { state[i] = 1; changed = true; } else if (d < lo[i] - 1e-6) { state[i] = -1; changed = true; }
+        } else {
+          const grad = g[p] - rhs0[p];
+          if ((state[i] > 0 && grad > 1e-7) || (state[i] < 0 && grad < -1e-7)) { state[i] = 0; changed = true; }
+        }
+      }
+      if (!changed) break;
+    }
+    const d = new Float64Array(N), x = new Float64Array(N), y = new Float64Array(N);
+    for (let i = 0; i < N; i++) {
+      d[i] = Math.min(hi[i], Math.max(lo[i], dP[pos[i]]));
+      x[i] = cx[i] + nx[i] * d[i]; y[i] = cy[i] + ny[i] * d[i];
+    }
+    return { x, y, d };
+  }
+
+  function curvature(x, y) {
+    const N = x.length, k = new Float64Array(N), ds = new Float64Array(N);
+    for (let i = 0; i < N; i++) {
+      const a = (i - 1 + N) % N, b = (i + 1) % N;
+      const ux = x[i] - x[a], uy = y[i] - y[a], vx = x[b] - x[i], vy = y[b] - y[i];
+      const wx = x[b] - x[a], wy = y[b] - y[a];
+      const cr = ux * vy - uy * vx;
+      k[i] = 2 * cr / (Math.hypot(ux, uy) * Math.hypot(vx, vy) * Math.hypot(wx, wy));
+      ds[i] = Math.hypot(vx, vy);
+    }
+    const out = new Float64Array(N);
+    for (let r = 0; r < 1; r++) for (let i = 0; i < N; i++) out[i] = 0.25 * k[(i - 1 + N) % N] + 0.5 * k[i] + 0.25 * k[(i + 1) % N];
+    return { k: out, ds };
+  }
+
+  /* ---------- Fisica e profilo di velocita' ---------- */
+  function carModel(car, env, aero) {
+    const rho = env.rho;
+    const kA = 0.5 * rho * car.ClA * aero.cl / car.m;
+    const kD = 0.5 * rho * car.CdA * aero.cd / car.m;
+    const Pm = car.P * 1000 * Math.pow(rho / 1.225, 0.3) / car.m;
+    const mu = car.mu * env.mu, roll = 0.012 * G;
+    const gripN = v => mu * (G + kA * v * v);
+    const axGrip = (v, kap) => { const gc = gripN(v), ay = v * v * Math.abs(kap); return Math.sqrt(Math.max(0, gc * gc - ay * ay)); };
+    return {
+      kA, kD, Pm, mu, roll,
+      vlim(kap) { const den = Math.abs(kap) - mu * kA; return den > 1e-7 ? Math.min(130, Math.sqrt(mu * G / den)) : 130; },
+      tractionA(v, kap) { return car.tf * axGrip(v, kap); },
+      driveA(v, kap) { return Math.min(car.tf * axGrip(v, kap), Pm / Math.max(v, 8)); },
+      accel(v, kap) { return this.driveA(v, kap) - kD * v * v - roll; },
+      decel(v, kap) { return Math.min(axGrip(v, kap), car.brk) + kD * v * v + roll; }
+    };
+  }
+
+  function speedProfile(M, kap, ds) {
+    const N = kap.length;
+    const vl = new Float64Array(N); for (let i = 0; i < N; i++) vl[i] = M.vlim(kap[i]);
+    const vb = vl.slice(), vf = vl.slice();
+    for (let n = 0; n < 3 * N; n++) {
+      const i = (N - 1 - (n % N) + N) % N, j = (i + 1) % N;
+      const v = Math.sqrt(vb[j] * vb[j] + 2 * ds[i] * M.decel(vb[j], kap[i]));
+      if (v < vb[i]) vb[i] = v;
+    }
+    for (let n = 0; n < 3 * N; n++) {
+      const i = n % N, j = (i + 1) % N;
+      const a = M.accel(vf[i], kap[i]);
+      const v = Math.sqrt(Math.max(1, vf[i] * vf[i] + 2 * ds[i] * a));
+      if (v < vf[j]) vf[j] = v;
+    }
+    const v = new Float64Array(N); for (let i = 0; i < N; i++) v[i] = Math.min(vb[i], vf[i]);
+    return v;
+  }
+
+  function gearFor(car, v) {
+    const kmh = v * 3.6;
+    for (let g = 0; g < car.gears.length; g++) if (kmh <= car.gears[g] * 0.97) return g + 1;
+    return car.gears.length;
+  }
+
+  /* ---------- Analisi completa ---------- */
+  function analyze(opts) {
+    const track = opts.track, champ = opts.champ, weather = opts.weather, aero = opts.aero || AERO.mid;
+    const temp = opts.temp == null ? 22 : opts.temp;
+    const ds = opts.ds || 4;
+    const cl = opts.centerline || buildCenterline(track, ds);
+    const N = cl.N;
+    const rho = 101325 / (287.05 * (temp + 273.15)) * Math.exp(-track.alt / 8400);
+    const tempGrip = weather.id === 'dry' ? 1 - 0.0016 * Math.abs(temp + 8 - 30) : 1;
+    const env = { rho, mu: weather.mu * tempGrip * (track.cal || 1) };
+    const car = champ.car, M = carModel(car, env, aero);
+    const half = Math.max(0.6, (track.width / 2 + track.kerb - 1.0) * weather.width);
+    const lo = new Float64Array(N).fill(-half), hi = new Float64Array(N).fill(half);
+    const line = minCurvature(cl.cx, cl.cy, lo, hi);
+    const kc = curvature(line.x, line.y), kap = kc.k, dsl = kc.ds;
+    const v = speedProfile(M, kap, dsl);
+    const s = new Float64Array(N + 1); for (let i = 0; i < N; i++) s[i + 1] = s[i] + dsl[i];
+    let time = 0; for (let i = 0; i < N; i++) time += dsl[i] * 2 / (v[i] + v[(i + 1) % N]);
+    const brake = new Float64Array(N), thr = new Float64Array(N), gear = new Uint8Array(N), acc = new Float64Array(N), latg = new Float64Array(N);
+    for (let i = 0; i < N; i++) {
+      const j = (i + 1) % N, a = (v[j] * v[j] - v[i] * v[i]) / (2 * dsl[i]); acc[i] = a;
+      const drag = M.kD * v[i] * v[i] + M.roll, dec = M.decel(v[i], kap[i]);
+      if (a < -0.3 - drag * 0) {
+        const need = -a - drag;
+        brake[i] = need > 0.4 ? Math.min(100, 100 * need / Math.max(0.1, dec - drag)) : 0;
+      }
+      if (brake[i] === 0) {
+        const Fa = Math.max(0.1, M.driveA(v[i], kap[i])), Fd = a + drag;
+        thr[i] = Math.max(0, Math.min(100, 100 * Fd / Fa)); if (thr[i] > 96) thr[i] = 100;
+      }
+      gear[i] = gearFor(car, v[i]);
+      latg[i] = v[i] * v[i] * Math.abs(kap[i]) / G;
+    }
+    // curve
+    const ds2 = cl.ds;
+    const out = [];
+    let defs = cl.corners.filter(c => c.turn > 0);
+    if (!defs.length) {
+      // tracciato importato: curve riconosciute dai minimi di velocita'
+      const vk = Array.from(v).map(x => x * 3.6), mins = [];
+      for (let i = 0; i < N; i++) {
+        let ok = true;
+        for (let k = 1; k <= 10 && ok; k++) if (vk[(i - k + N) % N] < vk[i] || vk[(i + k) % N] < vk[i]) ok = false;
+        if (!ok) continue;
+        let lm = vk[i], rm = vk[i];
+        for (let k = 1; k < N / 2; k++) { const x = vk[(i - k + N) % N]; if (x < vk[i]) break; lm = Math.max(lm, x); }
+        for (let k = 1; k < N / 2; k++) { const x = vk[(i + k) % N]; if (x < vk[i]) break; rm = Math.max(rm, x); }
+        if (Math.min(lm, rm) - vk[i] >= 18) {
+          const last = mins[mins.length - 1];
+          if (last && i - last < 40) { if (vk[i] < vk[last]) mins[mins.length - 1] = i; } else mins.push(i);
+        }
+      }
+      defs = mins.map((i, n) => ({ name: 'Curva ' + (n + 1), start: i * cl.ds - 30, end: i * cl.ds + 30, dir: kap[i] > 0 ? 'L' : 'R', turn: 1 }));
+    }
+    defs.forEach(c => {
+      const ia = Math.max(0, Math.floor((c.start - 10) / cl.ds)), ib = Math.min(N - 1, Math.ceil((c.end + 10) / cl.ds));
+      let ap = ia; for (let i = ia; i <= ib; i++) if (v[i] < v[ap]) ap = i;
+      let st = ap, gap = 0;
+      for (let i = ap; i >= Math.max(0, ap - 500); i--) { if (brake[i] > 4) { st = i; gap = 0; } else if (++gap > 4) break; }
+      const hasBrake = st !== ap && brake[st] > 4;
+      const ex = Math.min(N - 1, ap + Math.round(110 / ds2));
+      let gmin = 99; for (let i = ia; i <= ib; i++) gmin = Math.min(gmin, gear[i]);
+      let gate = ap; // marcia al punto di corda
+      const half2 = Math.max(0.6, half);
+      out.push({
+        name: c.name, dir: c.dir, turn: Math.round(c.turn), sApex: s[ap],
+        brakeStart: hasBrake ? s[st] : null, brakeDist: hasBrake ? s[ap] - s[st] : 0,
+        vEntry: v[hasBrake ? st : ia] * 3.6, vApex: v[ap] * 3.6, vExit: v[ex] * 3.6,
+        gearApex: gear[gate], gearMin: gmin, latG: Math.max.apply(null, Array.from(latg.slice(ia, ib + 1))),
+        brakePeak: hasBrake ? Math.max.apply(null, Array.from(brake.slice(st, ap + 1))) : 0,
+        side: line.d[ap] / half2, throttleExit: s[ex], iApex: ap, iBrake: hasBrake ? st : null, iA: ia, iB: ib, iExit: ex
+      });
+    });
+    out.sort((a, b) => a.sApex - b.sApex);
+    const kmh = new Float32Array(N); for (let i = 0; i < N; i++) kmh[i] = v[i] * 3.6;
+    let vmax = 0, vmin = 1e9; for (let i = 0; i < N; i++) { vmax = Math.max(vmax, kmh[i]); vmin = Math.min(vmin, kmh[i]); }
+    return {
+      N, time, length: s[N], x: line.x, y: line.y, cx: cl.cx, cy: cl.cy, d: line.d, s, v: kmh, brake, thr, gear, latg,
+      corners: out, vmax, vmin, vavg: s[N] / time * 3.6, half, rho, muEff: M.mu, car, closure: cl.closure
+    };
+  }
+
+  /* ---------- Tracciato importato (GeoJSON LineString o CSV lon,lat) ---------- */
+  function trackFromLonLat(pts, name, width) {
+    const R0 = 6371000, lat0 = pts.reduce((a, p) => a + p[1], 0) / pts.length;
+    const xs = pts.map(p => (p[0] - pts[0][0]) * Math.PI / 180 * R0 * Math.cos(lat0 * Math.PI / 180));
+    const ys = pts.map(p => (p[1] - pts[0][1]) * Math.PI / 180 * R0);
+    return { name, xs, ys, width: width || 12 };
+  }
+  function trackFromXY(xs, ys, o) {
+    // chiude, ricampiona e restituisce un oggetto traccia con centerline gia' pronta
+    const n = xs.length; const px = xs.slice(), py = ys.slice();
+    if (Math.hypot(px[0] - px[n - 1], py[0] - py[n - 1]) > 1) { px.push(px[0]); py.push(py[0]); }
+    const ps = [0]; for (let i = 1; i < px.length; i++) ps.push(ps[i - 1] + Math.hypot(px[i] - px[i - 1], py[i] - py[i - 1]));
+    const len = ps[ps.length - 1], ds = 4, N = Math.round(len / ds), h = len / N;
+    const cx = new Float64Array(N), cy = new Float64Array(N); let k = 0;
+    for (let i = 0; i < N; i++) {
+      const t0 = i * h; while (k < ps.length - 2 && ps[k + 1] < t0) k++;
+      const t = (t0 - ps[k]) / (ps[k + 1] - ps[k] || 1);
+      cx[i] = px[k] + t * (px[k + 1] - px[k]); cy[i] = py[k] + t * (py[k + 1] - py[k]);
+    }
+    // leggera media mobile per togliere il rumore dei punti GPS/OSM
+    for (let r = 0; r < 6; r++) { const sx = cx.slice(), sy = cy.slice(); for (let i = 0; i < N; i++) { const a = (i - 1 + N) % N, b = (i + 1) % N; cx[i] = 0.25 * sx[a] + 0.5 * sx[i] + 0.25 * sx[b]; cy[i] = 0.25 * sy[a] + 0.5 * sy[i] + 0.25 * sy[b]; } }
+    return {
+      track: { id: 'import', name: o.name || 'Tracciato importato', country: 'Importato', length: len, width: o.width || 12, kerb: 0.3, alt: o.alt || 100 },
+      centerline: { cx, cy, N, ds: h, corners: [], closure: {} }
+    };
+  }
+
+  root.Engine = { TRACKS, CHAMPS, WEATHER, AERO, buildCenterline, analyze, trackFromLonLat, trackFromXY, closeSegments, G };
+  if (typeof module !== 'undefined' && module.exports) module.exports = root.Engine;
+})(typeof window !== 'undefined' ? window : globalThis);
+
+</script>
+<script>
+(function () {
+  'use strict';
+  const E = window.Engine, $ = s => document.querySelector(s);
+  const reduce = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const state = { track: 'monza', champ: 'f1', weather: 'dry', aero: 'mid', temp: 22, color: 'speed', cam: 'full', cmp: 'none', wide: 'wide', speed: 2, t: 0, playing: false, hover: null, sel: null, real: null, range: null };
+  const customs = {}, cache = {}, clCache = {};
+  let cur = null, cmp = null, realAligned = null, DX = null, DY = null, CDX = null, CDY = null, K = 1, panning = null;
+  const VW = 1000; let VH = 600, U = 1, view = null, anim = null, chartGeom = null, dragging = false;
+
+  const RAMP = [[0, [76, 111, 232]], [.25, [32, 184, 201]], [.5, [84, 209, 139]], [.75, [240, 216, 74]], [1, [242, 139, 60]]];
+  function ramp(t) {
+    t = Math.max(0, Math.min(1, t));
+    for (let i = 1; i < RAMP.length; i++) if (t <= RAMP[i][0]) { const a = RAMP[i - 1], b = RAMP[i], u = (t - a[0]) / (b[0] - a[0]); return 'rgb(' + [0, 1, 2].map(k => Math.round(a[1][k] + u * (b[1][k] - a[1][k]))).join(',') + ')'; }
+    return 'rgb(242,139,60)';
+  }
+  const fmtT = t => { const m = Math.floor(t / 60); return m + ':' + (t - m * 60).toFixed(3).padStart(6, '0'); };
+  const fmtC = t => { const m = Math.floor(t / 60); return m + ':' + (t - m * 60).toFixed(1).padStart(4, '0'); };
+  const f0 = x => Math.round(x).toString();
+  const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+  const px = n => n * U;
+
+  /* ---------- controlli ---------- */
+  const ICON = {
+    dry: '<circle cx="12" cy="12" r="4"/><path d="M12 2.5v3M12 18.5v3M2.5 12h3M18.5 12h3M5.3 5.3l2.1 2.1M16.6 16.6l2.1 2.1M18.7 5.3l-2.1 2.1M7.4 16.6l-2.1 2.1"/>',
+    damp: '<path d="M7 14a4 4 0 1 1 .8-7.9A5 5 0 0 1 17.4 8 3.3 3.3 0 0 1 17 14Z"/><path d="M12 17.5l-1 2.2"/>',
+    wet: '<path d="M7 13a4 4 0 1 1 .8-7.9A5 5 0 0 1 17.4 7 3.3 3.3 0 0 1 17 13Z"/><path d="M8 16l-1 2.5M12 16l-1 2.5M16 16l-1 2.5"/>',
+    storm: '<path d="M7 12a4 4 0 1 1 .8-7.9A5 5 0 0 1 17.4 6 3.3 3.3 0 0 1 17 12Z"/><path d="M12.5 13l-2.5 4h3l-2 4.5"/>'
+  };
+  function chips(el, name, items, val, withIcon) {
+    $(el).innerHTML = items.map(([v, l]) => '<label><input type="radio" name="' + name + '" value="' + v + '"' + (v === val ? ' checked' : '') + '><span>' + (withIcon ? '<svg viewBox="0 0 24 24" aria-hidden="true">' + ICON[v] + '</svg>' : '') + esc(l) + '</span></label>').join('');
+  }
+  function buildControls() {
+    $('#sel-track').innerHTML = Object.values(E.TRACKS).map(t => '<option value="' + t.id + '">' + esc(t.name) + ' (' + (t.length / 1000).toFixed(3).replace('.', ',') + ' km)</option>').join('');
+    $('#sel-champ').innerHTML = Object.values(E.CHAMPS).map(c => '<option value="' + c.id + '">' + esc(c.name) + '</option>').join('');
+    $('#seg-weather').classList.add('wx'); chips('#seg-weather', 'weather', Object.values(E.WEATHER).map(w => [w.id, w.id === 'storm' ? 'Forte' : w.name]), state.weather, true);
+    chips('#seg-aero', 'aero', [['low', 'Basso'], ['mid', 'Medio'], ['high', 'Alto']], state.aero);
+    chips('#seg-color', 'color', [['speed', 'Velocità'], ['pedals', 'Pedali'], ['gear', 'Marcia']], state.color);
+    chips('#seg-cam', 'cam', [['full', 'Pista intera'], ['follow', 'Segui l’auto']], state.cam);
+    chips('#seg-wide', 'wide', [['wide', 'Ingrandita'], ['real', 'Reale']], state.wide);
+    chips('#seg-speed', 'spd', [['1', '1×'], ['2', '2×'], ['4', '4×'], ['8', '8×']], String(state.speed));
+    $('#sel-track').addEventListener('change', e => { state.track = e.target.value; update({ resetT: true }); });
+    $('#sel-champ').addEventListener('change', e => { state.champ = e.target.value; update(); });
+    $('#seg-weather').addEventListener('change', e => { state.weather = e.target.value; update(); });
+    $('#seg-aero').addEventListener('change', e => { state.aero = e.target.value; update(); });
+    $('#rng-temp').addEventListener('input', e => { state.temp = +e.target.value; $('#v-temp').textContent = state.temp + ' °C'; update(); });
+    $('#sel-cmp').addEventListener('change', e => { state.cmp = e.target.value; update(); });
+    $('#seg-color').addEventListener('change', e => { state.color = e.target.value; renderMap(); });
+    $('#seg-cam').addEventListener('change', e => { state.cam = e.target.value; if (state.cam === 'follow') state.sel = null; goView(true); renderStrip(); renderDetail(); syncZoomBtn(); });
+    $('#seg-wide').addEventListener('change', e => { state.wide = e.target.value; renderMap(); updateDots(); });
+    $('#b-zin').addEventListener('click', () => zoomBy(1.6)); $('#b-zout').addEventListener('click', () => zoomBy(1 / 1.6));
+    $('#seg-speed').addEventListener('change', e => { state.speed = +e.target.value; });
+    $('#v-temp').textContent = state.temp + ' °C';
+    $('#b-zoomout').addEventListener('click', () => { state.sel = null; state.range = null; state.cam = 'full'; $('#seg-cam input[value=full]').checked = true; afterSel(); syncZoomBtn(); });
+    $('#b-play').addEventListener('click', togglePlay);
+    $('#rng-scrub').addEventListener('input', e => { state.range = null; state.t = (+e.target.value / 1000) * cur.time; draw(); });
+    document.addEventListener('keydown', e => {
+      if (/INPUT|SELECT|TEXTAREA/.test(e.target.tagName) && e.target.type !== 'radio' && e.target.type !== 'range') return;
+      if (e.key === ' ' && e.target.tagName !== 'BUTTON' && !(e.target.tagName === 'INPUT' && e.target.type === 'radio')) { e.preventDefault(); togglePlay(); }
+      else if (e.key === 'ArrowRight' && e.altKey) { e.preventDefault(); stepCorner(1); }
+      else if (e.key === 'ArrowLeft' && e.altKey) { e.preventDefault(); stepCorner(-1); }
+      else if (e.key === 'Escape' && state.sel != null) { state.sel = null; state.range = null; afterSel(); }
+    });
+  }
+  function refreshCompare() {
+    const opts = [['none', 'Nessuno']];
+    if (state.weather !== 'dry') opts.push(['dry', 'Stessa auto, asciutto']);
+    Object.values(E.CHAMPS).forEach(c => { if (c.id !== state.champ) opts.push([c.id, c.name]); });
+    if (!opts.some(o => o[0] === state.cmp)) state.cmp = 'none';
+    $('#sel-cmp').innerHTML = opts.map(o => '<option value="' + o[0] + '"' + (o[0] === state.cmp ? ' selected' : '') + '>' + esc(o[1]) + '</option>').join('');
+  }
+
+  /* ---------- calcolo ---------- */
+  const trackObj = id => (customs[id] ? customs[id].track : E.TRACKS[id]);
+  const centerline = id => (customs[id] ? customs[id].centerline : clCache[id] || (clCache[id] = E.buildCenterline(E.TRACKS[id], 4)));
+  function prep(r) {
+    if (r._p) return r;
+    const N = r.N; r.t = new Float64Array(N + 1); r.lg = new Float32Array(N); r.nx = new Float64Array(N); r.ny = new Float64Array(N);
+    for (let i = 0; i < N; i++) { const a = (i - 1 + N) % N, b = (i + 1) % N; let tx = r.cx[b] - r.cx[a], ty = r.cy[b] - r.cy[a]; const l = Math.hypot(tx, ty) || 1; r.nx[i] = -ty / l; r.ny[i] = tx / l; }
+    for (let i = 0; i < N; i++) {
+      const j = (i + 1) % N, ds = r.s[i + 1] - r.s[i], v0 = r.v[i] / 3.6, v1 = r.v[j] / 3.6;
+      r.t[i + 1] = r.t[i] + ds * 2 / (v0 + v1); r.lg[i] = (v1 * v1 - v0 * v0) / (2 * ds) / 9.81;
+    }
+    { const stp = 3, gap = Math.ceil(80 / (r.length / N)), n2 = []; let m = 1e18;
+      for (let i = 0; i < N; i += stp) for (let j = i + gap; j < N; j += stp) { if (N - (j - i) < gap) continue; const dx = r.cx[i] - r.cx[j], dy = r.cy[i] - r.cy[j], d = dx * dx + dy * dy; if (d < m) m = d; }
+      r.minSep = Math.sqrt(m); }
+    r.corners.forEach(c => {
+      let ig = c.iApex; while (ig < N - 1 && ig < c.iApex + 300 && r.thr[ig] < 90) ig++;
+      c.iGas = ig; c.gasDist = r.s[ig] - r.s[c.iApex];
+      c.i0 = c.iBrake != null ? c.iBrake : c.iA;
+      const seq = []; let last = -1; for (let i = c.i0; i <= c.iExit; i++) if (r.gear[i] !== last) { seq.push(r.gear[i]); last = r.gear[i]; }
+      c.gears = seq;
+    });
+    r._p = 1; return r;
+  }
+  function run(weatherId, champId) {
+    const key = [state.track, champId, weatherId, state.aero, state.temp].join('|');
+    return cache[key] || (cache[key] = prep(E.analyze({ track: trackObj(state.track), champ: E.CHAMPS[champId], weather: E.WEATHER[weatherId], aero: E.AERO[state.aero], temp: state.temp, centerline: centerline(state.track) })));
+  }
+  function update(o) {
+    o = o || {};
+    const f = cur && !o.resetT ? state.t / cur.time : 0;
+    if (o.resetT) { state.sel = null; state.range = null; state.hover = null; if (state.cam === 'free') { state.cam = 'full'; const ci = $('#seg-cam input[value=full]'); if (ci) ci.checked = true; } }
+    cur = run(state.weather, state.champ);
+    refreshCompare();
+    cmp = state.cmp === 'none' ? null : state.cmp === 'dry' ? run('dry', state.champ) : run(state.weather, state.cmp);
+    if (state.sel != null && state.sel >= cur.corners.length) state.sel = null;
+    state.t = f * cur.time;
+    alignReal();
+    $('#stage').className = 'stage' + (state.weather === 'damp' ? ' rain1' : state.weather === 'wet' ? ' rain2' : state.weather === 'storm' ? ' rain3' : '');
+    renderStatic();
+  }
+  function renderStatic() {
+    sizeStage(); view = targetView();
+    renderHeadings(); renderMap(); renderTicks(); renderStrip(); renderDetail(); renderCharts(); draw();
+  }
+
+  /* ---------- telemetria reale ---------- */
+  function alignReal() {
+    realAligned = null;
+    if (!state.real || !cur) return;
+    const R = state.real, n = cur.N, out = { v: new Float32Array(n), g: R.gear ? new Float32Array(n) : null, t: R.thr ? new Float32Array(n) : null };
+    const dmax = R.dist[R.dist.length - 1]; let k = 0, sum = 0;
+    for (let i = 0; i < n; i++) {
+      const d = cur.s[i] / cur.length * dmax; while (k < R.dist.length - 2 && R.dist[k + 1] < d) k++;
+      const u = Math.max(0, Math.min(1, (d - R.dist[k]) / ((R.dist[k + 1] - R.dist[k]) || 1))), lerp = a => a[k] + u * (a[k + 1] - a[k]);
+      out.v[i] = lerp(R.speed); if (out.g) out.g[i] = R.gear[Math.round(k + u)]; if (out.t) out.t[i] = lerp(R.thr);
+      sum += Math.abs(out.v[i] - cur.v[i]);
+    }
+    out.mad = sum / n; realAligned = out;
+  }
+  function loadTelemetry(text) {
+    const lines = text.replace(/\r/g, '').split('\n').filter(l => l.trim());
+    if (lines.length < 3) throw new Error('File vuoto');
+    const sep = lines[0].indexOf(';') > -1 && lines[0].indexOf(',') === -1 ? ';' : ',';
+    const head = lines[0].split(sep).map(h => h.trim().replace(/^"|"$/g, '')), col = re => head.findIndex(h => re.test(h));
+    const iD = col(/dist/i), iS = col(/speed|vel/i), iG = col(/gear|marcia/i), iT = col(/throttle|gas|accel/i);
+    if (iD < 0 || iS < 0) throw new Error('Servono almeno le colonne Distance e Speed');
+    const R = { dist: [], speed: [], gear: iG >= 0 ? [] : null, thr: iT >= 0 ? [] : null }; let last = -1;
+    lines.slice(1).forEach(l => { const r = l.split(sep), d = parseFloat(r[iD]), v = parseFloat(r[iS]); if (!isFinite(d) || !isFinite(v) || d <= last) return; last = d; R.dist.push(d); R.speed.push(v); if (R.gear) R.gear.push(parseFloat(r[iG]) || 0); if (R.thr) R.thr.push(parseFloat(r[iT]) || 0); });
+    if (R.dist.length < 20) throw new Error('Troppe poche righe valide');
+    state.real = R;
+  }
+  function loadTrack(text, fname) {
+    let pts = null, name = fname.replace(/\.[^.]+$/, '');
+    try {
+      const j = JSON.parse(text), geoms = [];
+      const walk = g => { if (!g) return; if (g.type === 'FeatureCollection') g.features.forEach(walk); else if (g.type === 'Feature') { if (g.properties && (g.properties.Name || g.properties.name)) name = g.properties.Name || g.properties.name; walk(g.geometry); } else if (g.type === 'LineString') geoms.push(g.coordinates); else if (g.type === 'MultiLineString') g.coordinates.forEach(c => geoms.push(c)); else if (g.type === 'Polygon') geoms.push(g.coordinates[0]); };
+      walk(j); if (!geoms.length) throw new Error('Nessuna linea nel GeoJSON');
+      pts = geoms.reduce((a, b) => (b.length > a.length ? b : a), []);
+    } catch (e) {
+      if (e instanceof SyntaxError) { const c = text.replace(/\r/g, '').split('\n').map(l => l.split(/[;,\s]+/).map(parseFloat)).filter(r => r.length >= 2 && isFinite(r[0]) && isFinite(r[1])); if (c.length < 20) throw new Error('Formato non riconosciuto'); pts = c; } else throw e;
+    }
+    if (pts.length < 20) throw new Error('Servono almeno 20 punti');
+    let xs, ys;
+    if (pts.every(p => Math.abs(p[0]) <= 180 && Math.abs(p[1]) <= 90)) { const t = E.trackFromLonLat(pts, name); xs = t.xs; ys = t.ys; } else { xs = pts.map(p => p[0]); ys = pts.map(p => p[1]); }
+    const o = E.trackFromXY(xs, ys, { name, width: +$('#n-width').value || 12 });
+    if (o.track.length < 800 || o.track.length > 30000) throw new Error('Lunghezza del giro non plausibile (' + Math.round(o.track.length) + ' m)');
+    customs.import = o; Object.keys(cache).forEach(k => { if (k.indexOf('import|') === 0) delete cache[k]; });
+    let opt = $('#sel-track option[value="import"]'); if (!opt) { opt = document.createElement('option'); opt.value = 'import'; $('#sel-track').appendChild(opt); }
+    opt.textContent = o.track.name + ' (importato, ' + (o.track.length / 1000).toFixed(3).replace('.', ',') + ' km)';
+    $('#sel-track').value = 'import'; state.track = 'import';
+  }
+  function wireImports() {
+    const msg = (t, err) => { const m = $('#imp-msg'); m.textContent = t; m.className = 'msg' + (err ? ' err' : ''); };
+    const readFile = (input, fn) => input.addEventListener('change', () => { const f = input.files[0]; if (!f) return; const rd = new FileReader(); rd.onload = () => { try { fn(String(rd.result), f.name); } catch (e) { msg(e.message || 'File non valido', true); } input.value = ''; }; rd.readAsText(f); });
+    readFile($('#f-track'), (t, n) => { loadTrack(t, n); update({ resetT: true }); msg('Tracciato caricato: ' + customs.import.track.name + '. Le curve sono riconosciute in automatico.'); });
+    readFile($('#f-tel'), t => { loadTelemetry(t); $('#b-clear').hidden = false; update(); msg('Telemetria sovrapposta (tratteggio ambra).'); });
+    $('#b-clear').addEventListener('click', () => { state.real = null; $('#b-clear').hidden = true; msg(''); update(); });
+  }
+
+  /* ---------- testata e statistiche ---------- */
+  function renderHeadings() {
+    const r = cur, tr = trackObj(state.track), ch = E.CHAMPS[state.champ];
+    let sub = '';
+    if (state.champ === 'f1' && tr.ref && tr.ref[2026] && state.weather === 'dry' && state.aero === 'mid' && state.temp === 22) { const d = r.time - tr.ref[2026]; sub = 'Pole reale 2026 ' + fmtT(tr.ref[2026]) + ' (' + (d >= 0 ? '+' : '') + d.toFixed(2) + ' s)'; }
+    else if (state.weather !== 'dry') { const d = run('dry', state.champ); sub = '<span class="pos">+' + (r.time - d.time).toFixed(2) + ' s</span> rispetto all’asciutto'; }
+    else if (state.champ === 'f1' && tr.ref && tr.ref[2026]) sub = 'Pole reale 2026 ' + fmtT(tr.ref[2026]);
+    $('#hud-tl').innerHTML = '<div class="lbl">' + esc(tr.name) + ' · ' + esc(ch.name) + '</div><div class="laptime">' + fmtT(r.time) + '</div><div class="small">' + sub + '</div>';
+    $('#champnote').textContent = ch.name + ' · ' + ch.tyre + '. ' + ch.note + (state.track === 'import' ? ' Tracciato importato: può differire dalla pista reale per larghezza e cordoli.' : '');
+    $('#stats').innerHTML = '<span>Velocità massima <b>' + f0(r.vmax) + ' km/h</b></span><span>Media <b>' + f0(r.vavg) + ' km/h</b></span><span>Curva più lenta <b>' + f0(r.vmin) + ' km/h</b></span><span>Gomme <b>' + esc(E.WEATHER[state.weather].tyre) + '</b></span><span>Aderenza <b>' + r.muEff.toFixed(2) + '</b></span>' +
+      (cmp ? '<span>Confronto <b>' + fmtT(cmp.time) + '</b> (' + (r.time - cmp.time >= 0 ? '+' : '') + (r.time - cmp.time).toFixed(2) + ' s)</span>' : '') +
+      (realAligned ? '<span style="color:var(--real)">Scarto dalla telemetria <b style="color:var(--real)">' + realAligned.mad.toFixed(1) + ' km/h</b></span>' : '');
+  }
+
+  /* ---------- camera ---------- */
+  function sizeStage() { const s = $('#stage'), w = Math.max(200, s.clientWidth), h = Math.max(200, s.clientHeight); U = VW / w; VH = VW * h / w; $('#map').setAttribute('viewBox', '0 0 ' + VW + ' ' + VH.toFixed(1)); }
+  function fit(x0, x1, y0, y1, pad, minW, maxS) {
+    let bw = Math.max(x1 - x0, minW || 1), bh = Math.max(y1 - y0, minW || 1);
+    const pl = px(pad.l), pr = px(pad.r), pt = px(pad.t), pb = px(pad.b);
+    let s = Math.min((VW - pl - pr) / bw, (VH - pt - pb) / bh); if (maxS) s = Math.min(s, maxS);
+    const bcx = (x0 + x1) / 2, bcy = (y0 + y1) / 2, rcx = (pl + VW - pr) / 2, rcy = (pt + VH - pb) / 2;
+    return { cx: bcx - (rcx - VW / 2) / s, cy: bcy - (VH / 2 - rcy) / s, s };
+  }
+  const phone = () => window.innerWidth <= 720;
+  function overviewView() {
+    const r = cur; let x0 = 1e9, x1 = -1e9, y0 = 1e9, y1 = -1e9;
+    for (let i = 0; i < r.N; i++) { x0 = Math.min(x0, r.cx[i]); x1 = Math.max(x1, r.cx[i]); y0 = Math.min(y0, r.cy[i]); y1 = Math.max(y1, r.cy[i]); }
+    return fit(x0, x1, y0, y1, phone() ? { l: 24, r: 24, t: 84, b: 120 } : { l: 40, r: 40, t: 96, b: 124 });
+  }
+  function cornerView(c) {
+    const r = cur; let x0 = 1e9, x1 = -1e9, y0 = 1e9, y1 = -1e9;
+    const a = Math.max(0, c.i0 - 10), b = Math.min(r.N - 1, c.iGas + 14);
+    for (let i = a; i <= b; i++) { x0 = Math.min(x0, r.x[i]); x1 = Math.max(x1, r.x[i]); y0 = Math.min(y0, r.y[i]); y1 = Math.max(y1, r.y[i]); }
+    return fit(x0, x1, y0, y1, phone() ? { l: 40, r: 40, t: 100, b: 130 } : { l: 70, r: 70, t: 110, b: 140 }, 170, VW / 120);
+  }
+  function followView() { const i = displayIdx(); return { cx: DX ? DX[i] : cur.x[i], cy: DY ? DY[i] : cur.y[i], s: VW / (phone() ? 330 : 520) }; }
+  function targetView() { if (state.cam === 'free' && view) return view; if (state.sel != null) return cornerView(cur.corners[state.sel]); if (state.cam === 'follow') return followView(); return overviewView(); }
+  function goView(animate) {
+    const to = targetView();
+    if (!animate || reduce) { view = to; anim = null; renderMap(); updateDots(); return; }
+    const from = Object.assign({}, view), t0 = performance.now(), dur = 520;
+    const my = anim = {};
+    const step = now => {
+      if (anim !== my) return;
+      const u = Math.min(1, (now - t0) / dur), e = u < .5 ? 2 * u * u : 1 - Math.pow(-2 * u + 2, 2) / 2;
+      const dest = state.cam === 'follow' && state.sel == null ? followView() : to;
+      view = { cx: from.cx + (dest.cx - from.cx) * e, cy: from.cy + (dest.cy - from.cy) * e, s: Math.exp(Math.log(from.s) + (Math.log(dest.s) - Math.log(from.s)) * e) };
+      renderMap(); updateDots();
+      if (u < 1) requestAnimationFrame(step); else anim = null;
+    };
+    requestAnimationFrame(step);
+  }
+
+  /* ---------- mappa ---------- */
+  const MX = x => VW / 2 + (x - view.cx) * view.s, MY = y => VH / 2 - (y - view.cy) * view.s;
+  const P = (a, b, i) => MX(a[i]).toFixed(1) + ' ' + MY(b[i]).toFixed(1);
+  function normal(i) { return [cur.nx[i], cur.ny[i]]; }
+  function colorFn() {
+    const r = cur;
+    if (state.color === 'pedals') return i => (r.brake[i] > 4 ? 'var(--brake)' : r.thr[i] >= 96 ? 'var(--throttle)' : 'var(--real)');
+    if (state.color === 'gear') { const gm = r.car.gears.length; return i => ramp((r.gear[i] - 1) / Math.max(1, gm - 1)); }
+    const lo = r.vmin, hi = r.vmax; return i => ramp(Math.round((r.v[i] - lo) / (hi - lo) * 24) / 24);
+  }
+  const HALO = 'paint-order:stroke;stroke:var(--stage);stroke-width:' + 4 + 'px;stroke-linejoin:round;';
+  function renderMap() {
+    if (!cur || !view) return;
+    const r = cur, tr = trackObj(state.track), svg = $('#map');
+    let center = 'M' + P(r.cx, r.cy, 0); for (let i = 2; i < r.N; i += 2) center += 'L' + P(r.cx, r.cy, i); center += 'Z';
+    const wm = Math.min(px(34) / view.s, 0.88 * r.minSep);
+    K = state.wide === 'wide' ? Math.max(1, Math.min(6, wm / tr.width)) : 1;
+    const w = state.wide === 'wide' ? Math.max(tr.width * view.s * K, px(12)) : Math.max(tr.width * view.s, px(11));
+    if (!DX || DX.length !== r.N) { DX = new Float64Array(r.N); DY = new Float64Array(r.N); }
+    for (let i = 0; i < r.N; i++) { DX[i] = r.cx[i] + r.nx[i] * r.d[i] * K; DY[i] = r.cy[i] + r.ny[i] * r.d[i] * K; }
+    if (cmp) { if (!CDX || CDX.length !== cmp.N) { CDX = new Float64Array(cmp.N); CDY = new Float64Array(cmp.N); } for (let i = 0; i < cmp.N; i++) { CDX[i] = cmp.cx[i] + r.nx[i] * cmp.d[i] * K; CDY[i] = cmp.cy[i] + r.ny[i] * cmp.d[i] * K; } }
+    let s = '<path d="' + center + '" fill="none" stroke="var(--kerb)" stroke-width="' + (w + px(5)).toFixed(1) + '" stroke-linejoin="round"/>';
+    s += '<path d="' + center + '" fill="none" stroke="var(--asfalto)" stroke-width="' + w.toFixed(1) + '" stroke-linejoin="round"/>';
+    if (cmp) { let g = 'M' + P(CDX, CDY, 0); for (let i = 1; i < cmp.N; i += 2) g += 'L' + P(CDX, CDY, i); s += '<path d="' + g + 'Z" fill="none" stroke="var(--ghost)" stroke-width="' + px(2).toFixed(1) + '" stroke-dasharray="' + px(7).toFixed(1) + ' ' + px(6).toFixed(1) + '" stroke-linejoin="round"/>'; }
+    const col = colorFn(), LN = ' fill="none" stroke-width="' + px(4.5).toFixed(1) + '" stroke-linecap="round" stroke-linejoin="round" ';
+    let rc = null, d = '';
+    for (let i = 0; i < r.N; i++) { const c = col(i), j = (i + 1) % r.N; if (c !== rc) { if (d) s += '<path' + LN + 'stroke="' + rc + '" d="' + d + '"/>'; d = 'M' + P(DX, DY, i); rc = c; } d += 'L' + P(DX, DY, j); }
+    if (d) s += '<path' + LN + 'stroke="' + rc + '" d="' + d + '"/>';
+    r.corners.forEach(c => { if (c.iBrake != null) { const i = c.iBrake, q = normal(i), L = px(9) / view.s; s += '<line x1="' + MX(DX[i] - q[0] * L).toFixed(1) + '" y1="' + MY(DY[i] - q[1] * L).toFixed(1) + '" x2="' + MX(DX[i] + q[0] * L).toFixed(1) + '" y2="' + MY(DY[i] + q[1] * L).toFixed(1) + '" stroke="var(--brake)" stroke-width="' + px(4).toFixed(1) + '"/>'; } });
+    // numeri di curva
+    r.corners.forEach((c, n) => {
+      const i = c.iApex, q = normal(i), off = (c.dir === 'R' ? 1 : -1) * px(26) / view.s, bx = MX(DX[i] + q[0] * off), by = MY(DY[i] + q[1] * off), sel = state.sel === n, rad = px(sel ? 14 : 11);
+      s += '<g data-c="' + n + '" style="cursor:pointer"><circle cx="' + bx.toFixed(1) + '" cy="' + by.toFixed(1) + '" r="' + rad.toFixed(1) + '" fill="' + (sel ? 'var(--accent)' : 'var(--ink)') + '"/><text x="' + bx.toFixed(1) + '" y="' + (by + px(4.2)).toFixed(1) + '" text-anchor="middle" style="font-size:' + px(12.5).toFixed(1) + 'px;fill:' + (sel ? 'var(--accent-ink)' : 'var(--bg)') + ';font-weight:500">' + (n + 1) + '</text></g>';
+    });
+    r.corners.forEach(c => { const i = c.iApex; s += '<circle cx="' + MX(DX[i]).toFixed(1) + '" cy="' + MY(DY[i]).toFixed(1) + '" r="' + px(5).toFixed(1) + '" fill="var(--stage)" stroke="var(--ink)" stroke-width="' + px(2).toFixed(1) + '"/>'; });
+    // cartelli di frenata: 200, 150, 100, 50 m dalla corda, sul lato esterno
+    if (view.s / U >= 1.1) {
+      const BOARDS = [200, 150, 100, 50], nC = r.corners.length, edge = tr.width / 2 * K + px(17) / view.s;
+      r.corners.forEach((c, n) => {
+        const prev = r.corners[(n - 1 + nC) % nC]; let gapD = r.s[c.iApex] - r.s[prev.iApex]; if (gapD <= 0) gapD += r.length;
+        const out = c.dir === 'R' ? 1 : -1;
+        BOARDS.forEach(D => {
+          if (D >= gapD - 25) return;
+          let target = r.s[c.iApex] - D; if (target < 0) target += r.length;
+          let lo = 0, hi = r.N - 1; while (lo < hi) { const m = (lo + hi) >> 1; if (r.s[m] < target) lo = m + 1; else hi = m; }
+          const bx = MX(r.cx[lo] + r.nx[lo] * out * edge), by = MY(r.cy[lo] + r.ny[lo] * out * edge);
+          if (bx < -40 || bx > VW + 40 || by < -40 || by > VH + 40) return;
+          const w = px(31), h = px(18), red = D === 50;
+          s += '<g><rect x="' + (bx - w / 2).toFixed(1) + '" y="' + (by - h / 2).toFixed(1) + '" width="' + w.toFixed(1) + '" height="' + h.toFixed(1) + '" rx="' + px(2.5).toFixed(1) + '" fill="' + (red ? 'var(--brake)' : 'var(--panel)') + '" stroke="' + (red ? 'var(--brake)' : 'var(--ink)') + '" stroke-width="' + px(1.5).toFixed(1) + '"/><text x="' + bx.toFixed(1) + '" y="' + (by + px(4.2)).toFixed(1) + '" text-anchor="middle" style="font-size:' + px(12).toFixed(1) + 'px;font-weight:500;fill:' + (red ? '#fff' : 'var(--ink)') + '">' + D + '</text></g>';
+        });
+      });
+    }
+    // annotazioni della curva scelta
+    if (state.sel != null) {
+      const c = r.corners[state.sel], out = (c.dir === 'R' ? 1 : -1);
+      const lab = (i, txt, color, k, side) => { const q = normal(i), o = out * (side || 1) * px(34 + (k || 0)) / view.s, x = MX(DX[i] + q[0] * o), y = MY(DY[i] + q[1] * o); return '<circle cx="' + MX(DX[i]).toFixed(1) + '" cy="' + MY(DY[i]).toFixed(1) + '" r="' + px(6).toFixed(1) + '" fill="' + color + '" stroke="var(--stage)" stroke-width="' + px(2).toFixed(1) + '"/><text x="' + x.toFixed(1) + '" y="' + y.toFixed(1) + '" text-anchor="middle" style="' + HALO + 'font-size:' + px(13).toFixed(1) + 'px;fill:var(--ink);font-weight:500">' + txt + '</text>'; };
+      if (c.iBrake != null) s += lab(c.iBrake, 'Frena · ' + f0(c.vEntry) + ' km/h', 'var(--brake)');
+      s += lab(c.iApex, 'Corda · ' + f0(c.vApex) + ' km/h · ' + c.gearApex + 'ª', 'var(--accent)', 0, -1);
+      if (c.gasDist > 30) s += lab(c.iGas, 'Gas · ' + f0(r.v[c.iGas]) + ' km/h', 'var(--throttle)');
+    }
+    { const q = normal(0), L = px(13) / view.s; s += '<line x1="' + MX(DX[0] - q[0] * L).toFixed(1) + '" y1="' + MY(DY[0] - q[1] * L).toFixed(1) + '" x2="' + MX(DX[0] + q[0] * L).toFixed(1) + '" y2="' + MY(DY[0] + q[1] * L).toFixed(1) + '" stroke="var(--ink)" stroke-width="' + px(5).toFixed(1) + '"/><text x="' + (MX(DX[0]) + px(10)).toFixed(1) + '" y="' + (MY(DY[0]) - px(10)).toFixed(1) + '" style="font-size:' + px(12).toFixed(1) + 'px;fill:var(--ink)">S/F</text>'; }
+    s += '<g id="dots"><circle id="gdot" r="' + px(8) + '" fill="var(--stage)" stroke="var(--ghost)" stroke-width="' + px(3) + '" visibility="hidden"/><circle id="mdot" r="' + px(9) + '" fill="var(--accent)" stroke="var(--bg)" stroke-width="' + px(3) + '"/></g>';
+    svg.innerHTML = s;
+    renderLegend();
+  }
+  function renderLegend() {
+    const r = cur; let h = '';
+    if (state.color === 'speed') h = '<span>' + f0(r.vmin) + '</span><span class="grad" style="background:linear-gradient(90deg,' + [0, .25, .5, .75, 1].map(ramp).join(',') + ')"></span><span>' + f0(r.vmax) + ' km/h</span>';
+    else if (state.color === 'pedals') h = '<span><i style="background:var(--brake)"></i>Freno</span><span><i style="background:var(--throttle)"></i>Gas pieno</span><span><i style="background:var(--real)"></i>Gas parziale</span>';
+    else h = r.car.gears.map((_, g) => '<span><i style="background:' + ramp(g / Math.max(1, r.car.gears.length - 1)) + '"></i>' + (g + 1) + 'ª</span>').join('');
+    h += '<span><i style="background:var(--brake);height:10px;width:4px"></i>Frenata</span><span><i style="background:var(--stage);border:2px solid var(--ink);width:9px;height:9px;border-radius:50%"></i>Corda</span>';
+    if (view.s / U >= 1.1) h += '<span><i style="background:var(--panel);border:1.5px solid var(--ink);width:15px;height:9px;border-radius:2px"></i>Cartelli (m dalla corda)</span>';
+    if (K > 1.05) h += '<span>Larghezza ×' + K.toFixed(1) + '</span>';
+    if (cmp) h += '<span><i style="background:repeating-linear-gradient(90deg,var(--ghost) 0 6px,transparent 6px 10px)"></i>Confronto</span>';
+    $('#legend').innerHTML = h;
+  }
+  function updateDots(i) {
+    const m = $('#mdot'), g = $('#gdot'); if (!m || !view) return;
+    if (i == null) i = displayIdx();
+    m.setAttribute('cx', MX(DX[i]).toFixed(1)); m.setAttribute('cy', MY(DY[i]).toFixed(1));
+    if (cmp) {
+      const ig = idxAt(cmp, Math.min(state.hover != null ? cur.t[i] : state.t, cmp.time - 1e-6));
+      g.setAttribute('cx', MX(CDX[ig]).toFixed(1)); g.setAttribute('cy', MY(CDY[ig]).toFixed(1)); g.setAttribute('visibility', 'visible');
+    } else g.setAttribute('visibility', 'hidden');
+  }
+
+  /* ---------- tempo e posizione ---------- */
+  function idxAt(r, t) { let lo = 0, hi = r.N - 1; while (lo < hi) { const m = (lo + hi + 1) >> 1; if (r.t[m] <= t) lo = m; else hi = m - 1; } return lo; }
+  function tAtFrac(r, f) { const target = f * r.length; let lo = 0, hi = r.N - 1; while (lo < hi) { const m = (lo + hi) >> 1; if (r.s[m] < target) lo = m + 1; else hi = m; } return r.t[lo]; }
+  const displayIdx = () => (state.hover != null ? state.hover : idxAt(cur, Math.min(state.t, cur.time - 1e-6)));
+
+  /* ---------- cruscotto e replay ---------- */
+  function draw() {
+    if (!cur) return;
+    const i = displayIdx(), r = cur;
+    $('#h-speed').textContent = f0(r.v[i]); $('#h-gear').textContent = r.gear[i];
+    $('#h-thr').style.height = r.thr[i] + '%'; $('#h-brk').style.height = r.brake[i] + '%';
+    const lat = r.latg[i], lg = r.lg[i];
+    const turn = (() => { const a = (i - 2 + r.N) % r.N, b = (i + 2) % r.N; return (r.x[i] - r.x[a]) * (r.y[b] - r.y[i]) - (r.y[i] - r.y[a]) * (r.x[b] - r.x[i]); })();
+    $('#h-gg').setAttribute('cx', (Math.max(-26, Math.min(26, (turn > 0 ? -1 : 1) * lat * 7))).toFixed(1)); $('#h-gg').setAttribute('cy', (Math.max(-26, Math.min(26, -lg * 6))).toFixed(1));
+    $('#rng-scrub').value = Math.round((state.hover != null ? r.t[i] : state.t) / r.time * 1000);
+    $('#clock').textContent = fmtC(r.t[i]) + ' / ' + fmtC(r.time);
+    // banner: prossima curva e frenata
+    let msg = '', brk = false;
+    if (r.corners.length) {
+      let best = null, bd = 1e9;
+      r.corners.forEach((c, n) => {
+        const tgt = c.iBrake != null ? c.iBrake : c.iApex; let d = r.s[tgt] - r.s[i]; if (d < -5) d += r.length;
+        const inside = c.iBrake != null && i >= c.iBrake && i <= c.iApex;
+        if (inside) { best = { c, n, inside: true, d: r.s[c.iApex] - r.s[i] }; bd = -1; } else if (d < bd) { bd = d; best = { c, n, d }; }
+      });
+      if (best.inside) { msg = 'FRENA · curva ' + (best.n + 1) + ' tra ' + f0(best.d) + ' m'; brk = true; }
+      else if (best.d < 900) msg = 'Curva ' + (best.n + 1) + ' ' + best.c.name + ' · ' + (best.c.iBrake != null ? 'frenata' : 'corda') + ' tra ' + f0(best.d) + ' m';
+    }
+    if (cmp) { const d = r.t[i] - tAtFrac(cmp, r.s[i] / r.length); msg += (msg ? ' · ' : '') + 'Δ ' + (d >= 0 ? '+' : '') + d.toFixed(2) + ' s'; }
+    const b = $('#banner'); b.textContent = msg; b.className = 'banner' + (brk ? ' brk' : '');
+    if (state.cam === 'follow' && state.sel == null && !anim) { view = followView(); renderMap(); }
+    updateDots(i); moveChartLine(i); markTicks(i);
+  }
+  let raf = null, last = 0;
+  function frame(ts) {
+    if (!state.playing) { raf = null; return; }
+    const dt = Math.min(0.1, (ts - last) / 1000); last = ts;
+    if (state.range) {
+      state.t += dt * 0.5 * state.speed / 2;
+      if (state.t >= state.range[1]) { state.t = state.range[1]; state.playing = false; state.range = null; syncPlay(); }
+    } else { state.t += dt * state.speed; if (state.t >= cur.time) state.t -= cur.time; }
+    draw(); raf = requestAnimationFrame(frame);
+  }
+  function syncPlay() { $('#b-play').innerHTML = state.playing ? '<svg viewBox="0 0 24 24"><rect x="6" y="5" width="4" height="14"/><rect x="14" y="5" width="4" height="14"/></svg>' : '<svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>'; $('#b-play').setAttribute('aria-pressed', state.playing); }
+  function play(on) { state.playing = on; syncPlay(); if (on && !raf) { last = performance.now(); raf = requestAnimationFrame(frame); } }
+  function togglePlay() { if (!state.playing && !state.range && state.t >= cur.time - 0.05) state.t = 0; play(!state.playing); }
+
+  /* ---------- scorrimento sul giro (ccursore sulla mappa e sui grafici) ---------- */
+  function renderTicks() {
+    const r = cur;
+    $('#ticks').innerHTML = r.corners.map((c, n) => '<button type="button" data-c="' + n + '" style="left:' + (r.t[c.iApex] / r.time * 100).toFixed(2) + '%" aria-label="Vai alla curva ' + (n + 1) + ' ' + esc(c.name) + '">' + (n + 1) + '</button>').join('');
+  }
+  function markTicks(i) { const cs = cur.corners; let on = -1; cs.forEach((c, n) => { if (i >= c.iA && i <= c.iB) on = n; }); document.querySelectorAll('#ticks button').forEach((b, n) => b.classList.toggle('on', n === on)); }
+  function nearest(ev) {
+    const r = cur, svg = $('#map'), b = svg.getBoundingClientRect();
+    const ux = (ev.clientX - b.left) / b.width * VW, uy = (ev.clientY - b.top) / b.height * VH;
+    const x = view.cx + (ux - VW / 2) / view.s, y = view.cy - (uy - VH / 2) / view.s;
+    let bi = 0, bd = 1e18; for (let i = 0; i < r.N; i++) { const dx = DX[i] - x, dy = DY[i] - y, d = dx * dx + dy * dy; if (d < bd) { bd = d; bi = i; } }
+    return { i: bi, px: Math.sqrt(bd) * view.s * (b.width / VW) };
+  }
+  function wireMap() {
+    const svg = $('#map'), tip = $('#tip'), stage = $('#stage');
+    const showTip = (i, ev) => { const b = stage.getBoundingClientRect(); tip.hidden = false; tip.style.left = (ev.clientX - b.left) + 'px'; tip.style.top = (ev.clientY - b.top) + 'px'; tip.textContent = f0(cur.v[i]) + ' km/h · ' + cur.gear[i] + 'ª · ' + f0(cur.s[i]) + ' m'; };
+    svg.addEventListener('pointerdown', ev => {
+      const g = ev.target.closest && ev.target.closest('[data-c]'); if (g) { selectCorner(+g.getAttribute('data-c')); return; }
+      const n = nearest(ev), pxd = n.px;
+      if (pxd < 40) { dragging = true; svg.setPointerCapture(ev.pointerId); state.range = null; state.t = cur.t[n.i]; state.hover = null; draw(); }
+      else { panning = { x: ev.clientX, y: ev.clientY, cx: view.cx, cy: view.cy }; svg.setPointerCapture(ev.pointerId); }
+    });
+    svg.addEventListener('pointermove', ev => {
+      const n = nearest(ev), pxd = n.px;
+      if (panning) { const b = svg.getBoundingClientRect(); view = { cx: panning.cx - (ev.clientX - panning.x) / b.width * VW / view.s, cy: panning.cy + (ev.clientY - panning.y) / b.height * VH / view.s, s: view.s }; setFree(); renderMap(); updateDots(); return; }
+      if (dragging) { state.t = cur.t[n.i]; draw(); showTip(n.i, ev); return; }
+      if (pxd < 34) { state.hover = n.i; showTip(n.i, ev); } else { state.hover = null; tip.hidden = true; }
+      draw();
+    });
+    const end = () => { dragging = false; panning = null; };
+    svg.addEventListener('pointerup', end); svg.addEventListener('pointercancel', end);
+    svg.addEventListener('pointerleave', () => { if (dragging) return; state.hover = null; tip.hidden = true; draw(); });
+    svg.addEventListener('wheel', ev => {
+      if (!(ev.ctrlKey || ev.metaKey)) return; ev.preventDefault();
+      const b = svg.getBoundingClientRect(), ux = (ev.clientX - b.left) / b.width * VW, uy = (ev.clientY - b.top) / b.height * VH;
+      zoomAt(Math.exp(-ev.deltaY * 0.01), ux, uy);
+    }, { passive: false });
+    $('#ticks').addEventListener('click', e => { const b = e.target.closest('button'); if (b) selectCorner(+b.getAttribute('data-c'), true); });
+  }
+
+  function setFree() { if (state.cam !== 'free') { state.cam = 'free'; document.querySelectorAll('#seg-cam input').forEach(i => { i.checked = false; }); } syncZoomBtn(); }
+  function syncZoomBtn() { $('#b-zoomout').hidden = !(state.sel != null || state.cam === 'free'); }
+  function zoomAt(f, ux, uy) {
+    const wx = view.cx + (ux - VW / 2) / view.s, wy = view.cy - (uy - VH / 2) / view.s, s = Math.max(VW / 6000, Math.min(VW / 60, view.s * f));
+    view = { s, cx: wx - (ux - VW / 2) / s, cy: wy + (uy - VH / 2) / s }; setFree(); renderMap(); updateDots();
+  }
+  function zoomBy(f) { zoomAt(f, VW / 2, VH / 2); }
+
+  /* ---------- schede e dettaglio curva ---------- */
+  function spark(c) {
+    const r = cur, a = Math.max(0, c.i0 - 6), b = Math.min(r.N - 1, c.iExit + 4); let lo = 1e9, hi = 0;
+    for (let i = a; i <= b; i++) { lo = Math.min(lo, r.v[i]); hi = Math.max(hi, r.v[i]); }
+    const W = 190, H = 38; let d = '', brk = '';
+    for (let i = a; i <= b; i++) { const x = (i - a) / (b - a) * W, y = H - 3 - (r.v[i] - lo) / ((hi - lo) || 1) * (H - 8); d += (i === a ? 'M' : 'L') + x.toFixed(1) + ' ' + y.toFixed(1); }
+    if (c.iBrake != null) brk = '<rect x="' + ((c.iBrake - a) / (b - a) * W).toFixed(1) + '" y="0" width="' + (((c.iApex - c.iBrake) / (b - a)) * W).toFixed(1) + '" height="' + H + '" fill="var(--brake)" opacity=".18"/>';
+    return '<svg viewBox="0 0 ' + W + ' ' + H + '" preserveAspectRatio="none" aria-hidden="true">' + brk + '<path d="' + d + '" fill="none" stroke="var(--accent)" stroke-width="1.8" vector-effect="non-scaling-stroke"/><line x1="' + ((c.iApex - a) / (b - a) * W).toFixed(1) + '" x2="' + ((c.iApex - a) / (b - a) * W).toFixed(1) + '" y1="0" y2="' + H + '" stroke="var(--ink2)" stroke-dasharray="2 2"/></svg>';
+  }
+  function renderStrip() {
+    $('#strip').innerHTML = cur.corners.map((c, n) =>
+      '<button type="button" class="card' + (state.sel === n ? ' sel' : '') + '" data-c="' + n + '"><div class="top"><span class="badge">' + (n + 1) + '</span><span class="nm">' + esc(c.name) + '</span><span class="dir" title="' + (c.dir === 'R' ? 'Destra' : 'Sinistra') + '">' + (c.dir === 'R' ? '↱' : '↰') + '</span></div>' + spark(c) +
+      '<div class="kv"><span>' + (c.brakeStart == null ? 'Solo rilascio' : 'Frena ' + f0(c.brakeDist) + ' m') + '</span><b>' + f0(c.vApex) + ' km/h</b></div><div class="kv"><span>Marcia in corda</span><b>' + c.gearApex + 'ª</b></div></button>').join('');
+  }
+  function boardText(d) {
+    const B = [200, 150, 100, 50];
+    if (d > 212) return 'prima del cartello dei 200 m';
+    for (let k = 0; k < B.length; k++) if (Math.abs(d - B[k]) <= 12) return 'al cartello dei ' + B[k] + ' m';
+    for (let k = 0; k < B.length - 1; k++) if (d < B[k] && d > B[k + 1]) return 'tra il cartello dei ' + B[k] + ' e dei ' + B[k + 1] + ' m';
+    return 'dopo il cartello dei 50 m';
+  }
+  function sideText(c) { const ins = (c.dir === 'R' ? -c.side : c.side), p = Math.round(Math.abs(ins) * 100); return Math.abs(ins) < 0.35 ? 'Centro pista' : ins > 0 ? 'Interna, ' + p + '% della larghezza' : 'Esterna, ' + p + '% della larghezza'; }
+  function timeline(c) {
+    const r = cur, a = c.i0, b = Math.min(r.N - 1, c.iGas + 8), W = 720, H = 54, n = b - a || 1; let rects = '', lab = '', lastG = -1, lastX = -99;
+    for (let i = a; i < b; i++) { const col = r.brake[i] > 4 ? 'var(--brake)' : r.thr[i] >= 90 ? 'var(--throttle)' : 'var(--real)', x = (i - a) / n * W; rects += '<rect x="' + x.toFixed(1) + '" y="22" width="' + (W / n + .6).toFixed(2) + '" height="12" fill="' + col + '"/>'; }
+    for (let i = a; i <= b; i++) if (r.gear[i] !== lastG) { const x = (i - a) / n * W; lastG = r.gear[i]; if (x - lastX > 26) { lab += '<text x="' + Math.max(8, x).toFixed(1) + '" y="14" text-anchor="middle">' + lastG + 'ª</text><line x1="' + x.toFixed(1) + '" x2="' + x.toFixed(1) + '" y1="17" y2="38" stroke="var(--ink2)" stroke-width=".8"/>'; lastX = x; } }
+    const ax = (c.iApex - a) / n * W;
+    return '<svg class="tl-svg" viewBox="0 0 ' + W + ' ' + H + '" preserveAspectRatio="none" role="img" aria-label="Sequenza: frenata, marce, corda, gas">' + rects + lab + '<path d="M' + (ax - 5) + ' 52L' + ax + ' 42L' + (ax + 5) + ' 52Z" fill="var(--ink)"/></svg>';
+  }
+  function renderDetail() {
+    const el = $('#detail');
+    if (state.sel == null) { el.hidden = true; el.innerHTML = ''; syncZoomBtn(); return; }
+    const c = cur.corners[state.sel], n = state.sel, r = cur;
+    el.hidden = false; syncZoomBtn();
+    el.innerHTML =
+      '<div class="d-head"><span class="badge">' + (n + 1) + '</span><h3>' + esc(c.name) + '</h3><span class="note">' + (c.dir === 'R' ? 'Destra' : 'Sinistra') + ' · ' + sideText(c) + '</span><div class="acts"><button class="btn pri" id="d-replay" type="button">Rivedi la curva</button><button class="btn" id="d-prev" type="button">Precedente</button><button class="btn" id="d-next" type="button">Successiva</button><button class="btn" id="d-close" type="button">Chiudi</button></div></div>' +
+      timeline(c) +
+      '<div class="steps"><div class="step b"><b>' + (c.brakeStart == null ? 'Solo rilascio' : f0(c.brakeDist) + ' m') + '</b><span>' + (c.brakeStart == null ? 'Alza il piede, nessuna frenata vera' : 'di frenata prima della corda, da ' + f0(c.vEntry) + ' km/h. Si inizia ' + boardText(c.brakeDist) + ' (freno al ' + f0(c.brakePeak) + '%)') + '</span></div>' +
+      '<div class="step m"><b>' + c.gears.map(g => g + 'ª').join(' → ') + '</b><span>marce dalla frenata alla ripartenza</span></div>' +
+      '<div class="step a"><b>' + f0(c.vApex) + ' km/h</b><span>in corda, ' + c.latG.toFixed(1) + ' g laterali</span></div>' +
+      '<div class="step g"><b>' + (c.gasDist < 15 ? 'Subito' : f0(c.gasDist) + ' m') + '</b><span>' + (c.gasDist < 15 ? 'gas pieno già in corda' : 'dopo la corda si riapre il gas') + ', uscita a ' + f0(c.vExit) + ' km/h</span></div></div>';
+    $('#d-replay').addEventListener('click', () => replayCorner(n));
+    $('#d-prev').addEventListener('click', () => stepCorner(-1)); $('#d-next').addEventListener('click', () => stepCorner(1)); $('#d-close').addEventListener('click', () => { state.sel = null; state.range = null; afterSel(); });
+  }
+  function afterSel() { renderStrip(); renderDetail(); renderCharts(); goView(true); draw(); }
+  function selectCorner(n, seek) {
+    state.sel = state.sel === n && !seek ? null : n; state.range = null; state.hover = null;
+    if (state.sel != null) { state.cam = 'full'; const ci = $('#seg-cam input[value=full]'); if (ci) ci.checked = true; const c0 = cur.corners[n]; state.t = state.playing ? cur.t[Math.max(0, c0.i0 - 40)] : cur.t[c0.iApex]; }
+    afterSel();
+    if (state.sel != null) { const card = document.querySelector('.card[data-c="' + n + '"]'); if (card) { const s = $('#strip'); s.scrollTo({ left: card.offsetLeft - 12, behavior: reduce ? 'auto' : 'smooth' }); } }
+  }
+  function stepCorner(d) { if (!cur.corners.length) return; const n = state.sel == null ? 0 : (state.sel + d + cur.corners.length) % cur.corners.length; selectCorner(n, true); }
+  function replayCorner(n) { const c = cur.corners[n], t0 = cur.t[Math.max(0, c.i0 - 25)], t1 = cur.t[Math.min(cur.N - 1, c.iGas + 8)]; state.t = t0; state.range = [t0, t1]; state.hover = null; play(true); }
+
+  /* ---------- grafici ---------- */
+  function renderCharts() {
+    const r = cur, host = $('#charts'), W = Math.max(320, host.clientWidth - 12), ml = 44, mr = 8, pw = W - ml - mr;
+    const gm = r.car.gears.length, vTop = Math.ceil(r.vmax / 50) * 50;
+    const panels = [{ key: 'v', label: 'Velocità (km/h)', h: 170, d: [0, vTop], ticks: [0, vTop / 2, vTop] }, { key: 'tb', label: 'Gas e freno (%)', h: 70, d: [0, 100], ticks: [0, 100] }, { key: 'g', label: 'Marcia', h: 80, d: [0, gm + 0.5], ticks: [1, Math.round(gm / 2), gm] }];
+    const gap = 22; let y = 28; panels.forEach(p => { p.y = y; y += p.h + gap; }); const H = y - gap + 22;
+    const xs = i => ml + r.s[i] / r.length * pw, ys = (p, v) => p.y + p.h - (v - p.d[0]) / (p.d[1] - p.d[0]) * p.h;
+    chartGeom = { ml, pw, H, W, xs };
+    let s = '';
+    r.corners.forEach((c, n) => { const a = xs(c.iA), b = xs(c.iB), sel = state.sel === n; s += '<rect x="' + a.toFixed(1) + '" y="12" width="' + Math.max(2, b - a).toFixed(1) + '" height="' + (H - 34) + '" fill="' + (sel ? 'var(--accent)' : 'var(--band)') + '" opacity="' + (sel ? .22 : .8) + '"/><text x="' + ((a + b) / 2).toFixed(1) + '" y="10" text-anchor="middle" style="font-size:10px">' + (n + 1) + '</text>'; });
+    panels.forEach(p => {
+      s += '<text x="' + ml + '" y="' + (p.y - 5) + '" style="font-family:var(--f-display);font-size:11.5px;letter-spacing:.08em;text-transform:uppercase">' + p.label + '</text>';
+      p.ticks.forEach(t => { const yy = ys(p, t); s += '<line x1="' + ml + '" x2="' + (ml + pw) + '" y1="' + yy.toFixed(1) + '" y2="' + yy.toFixed(1) + '" stroke="var(--line)"/><text x="' + (ml - 6) + '" y="' + (yy + 3.5).toFixed(1) + '" text-anchor="end">' + Math.round(t) + '</text>'; });
+    });
+    const step = r.length > 4500 ? 1000 : 500;
+    for (let m = 0; m <= r.length; m += step) { const xx = ml + m / r.length * pw; s += '<text x="' + xx.toFixed(1) + '" y="' + (H - 6) + '" text-anchor="' + (m === 0 ? 'start' : 'middle') + '">' + (m / 1000).toFixed(m % 1000 ? 1 : 0) + (m === 0 ? ' km' : '') + '</text>'; }
+    const [pv, pt, pg] = panels;
+    const line = (arr, p, extra, src) => { const rr = src || r; let d = ''; for (let i = 0; i < rr.N; i++) d += (i ? 'L' : 'M') + (ml + rr.s[i] / rr.length * pw).toFixed(1) + ' ' + ys(p, arr[i]).toFixed(1); return '<path d="' + d + '" fill="none" ' + extra + '/>'; };
+    const area = (arr, p, extra) => { let d = 'M' + xs(0).toFixed(1) + ' ' + ys(p, 0).toFixed(1); for (let i = 0; i < r.N; i++) d += 'L' + xs(i).toFixed(1) + ' ' + ys(p, arr[i]).toFixed(1); return '<path d="' + d + 'L' + xs(r.N - 1).toFixed(1) + ' ' + ys(p, 0).toFixed(1) + 'Z" ' + extra + '/>'; };
+    const steps = (arr, p, extra) => { let d = 'M' + xs(0).toFixed(1) + ' ' + ys(p, arr[0]).toFixed(1); for (let i = 1; i < r.N; i++) if (arr[i] !== arr[i - 1]) d += 'H' + xs(i).toFixed(1) + 'V' + ys(p, arr[i]).toFixed(1); return '<path d="' + d + 'H' + xs(r.N - 1).toFixed(1) + '" fill="none" ' + extra + '/>'; };
+    if (cmp) s += line(cmp.v, pv, 'stroke="var(--ghost)" stroke-width="1.5" stroke-dasharray="5 4"', cmp);
+    s += line(r.v, pv, 'stroke="var(--accent)" stroke-width="2" stroke-linejoin="round"');
+    s += area(r.thr, pt, 'fill="var(--throttle)" opacity=".28"') + line(r.thr, pt, 'stroke="var(--throttle)" stroke-width="1.6"') + area(r.brake, pt, 'fill="var(--brake)" opacity=".9"');
+    s += steps(r.gear, pg, 'stroke="var(--ink)" stroke-width="1.8"');
+    if (realAligned) { const ex = 'stroke="var(--real)" stroke-width="1.8" stroke-dasharray="6 3"'; s += line(realAligned.v, pv, ex); if (realAligned.t) s += line(realAligned.t, pt, 'stroke="var(--real)" stroke-width="1.4" stroke-dasharray="4 3"'); if (realAligned.g) s += steps(realAligned.g, pg, ex); }
+    s += '<line id="cline" y1="12" y2="' + (H - 22) + '" stroke="var(--ink)" stroke-width="1.2" visibility="hidden"/><rect id="chit" x="' + ml + '" y="0" width="' + pw + '" height="' + H + '" fill="transparent" style="cursor:crosshair"/>';
+    host.innerHTML = '<svg viewBox="0 0 ' + W + ' ' + H + '" width="' + W + '" height="' + H + '" role="img" aria-label="Telemetria simulata: velocità, gas e freno, marcia lungo il giro">' + s + '</svg>';
+    const hit = $('#chit'), idxFrom = e => { const b = hit.getBoundingClientRect(), u = Math.max(0, Math.min(1, (e.clientX - b.left) / b.width)), target = u * r.length; let lo = 0, hi = r.N - 1; while (lo < hi) { const m = (lo + hi) >> 1; if (r.s[m] < target) lo = m + 1; else hi = m; } return lo; };
+    let drag = false;
+    hit.addEventListener('pointermove', e => { const i = idxFrom(e); if (drag) { state.t = r.t[i]; state.range = null; state.hover = null; } else state.hover = i; draw(); });
+    hit.addEventListener('pointerdown', e => { drag = true; hit.setPointerCapture(e.pointerId); const i = idxFrom(e); state.t = r.t[i]; state.range = null; state.hover = null; draw(); });
+    hit.addEventListener('pointerup', () => { drag = false; }); hit.addEventListener('pointercancel', () => { drag = false; });
+    hit.addEventListener('pointerleave', () => { if (!drag) { state.hover = null; draw(); } });
+  }
+  function moveChartLine(i) { const l = $('#cline'); if (!l || !chartGeom) return; const x = chartGeom.xs(i).toFixed(1); l.setAttribute('x1', x); l.setAttribute('x2', x); l.setAttribute('visibility', 'visible'); }
+
+  /* ---------- avvio ---------- */
+  buildControls(); wireImports(); wireMap(); syncPlay();
+  $('#strip').addEventListener('click', e => { const c = e.target.closest('.card'); if (c) selectCorner(+c.getAttribute('data-c')); });
+  update({ resetT: true });
+  if (!reduce) play(true);
+  let rt = null;
+  new ResizeObserver(() => { clearTimeout(rt); rt = setTimeout(() => { if (!cur) return; const w = $('#stage').clientWidth, h = $('#stage').clientHeight; if (Math.abs(VW / U - w) > 2 || Math.abs(VH / U - h) > 2) { sizeStage(); view = targetView(); renderMap(); renderTicks(); draw(); } if (Math.abs($('#charts').clientWidth - 12 - chartGeom.W) > 2) { renderCharts(); draw(); } }, 80); }).observe(document.body);
+})();
+</script>
+
+</body></html>
