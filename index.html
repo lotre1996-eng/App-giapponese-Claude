@@ -8,30 +8,34 @@
 /* Layout: un palco centrale (mappa a tutto schermo con cruscotto), barra di replay, schede delle curve scorrevoli, grafici sincronizzati.
    Palette: asfalto grigio-verde freddo, accento verde acqua, rosso freno e verde gas come nella telemetria vera, ambra per i dati reali. */
 :root {
-  --bg: #ECEFEF; --panel: #FAFBFB; --stage: #F3F6F6; --ink: #121A1D; --ink2: #50606A; --line: #D2D9DB; --asfalto: #BCC7CA; --kerb: #E3E9EA; --band: #D9E0E2;
-  --accent: #0A726D; --accent-ink: #FFFFFF; --brake: #D1342E; --throttle: #1C9A52; --real: #B45309; --ghost: #6F8088; --focus: #0A726D; --glass: rgba(250,251,251,.88);
+  --bg: #ECEFEF; --panel: #FAFBFB; --stage: #F3F6F6; --ink: #121A1D; --ink2: #50606A; --line: #D2D9DB; --asfalto: #BCC7CA; --kerb: #CFD8DA; --band: #D9E0E2;
+  --accent: #0A726D; --accent-ink: #FFFFFF; --brake: #D1342E; --throttle: #1C9A52; --throttle2: #9AD3AE; --real: #B45309; --ghost: #6F8088; --focus: #0A726D; --glass: rgba(250,251,251,.88);
   --f-display: 'Barlow Condensed', 'Arial Narrow', sans-serif;
   --f-body: 'IBM Plex Sans', system-ui, sans-serif;
   --f-data: 'IBM Plex Mono', ui-monospace, monospace;
 }
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
-    --bg: #0D1316; --panel: #141C20; --stage: #0A1013; --ink: #E7EEF0; --ink2: #9CABB1; --line: #26343A; --asfalto: #2A373C; --kerb: #1B262B; --band: #1B262B;
-    --accent: #3CCFC4; --accent-ink: #062321; --brake: #FF6B63; --throttle: #4CD98A; --real: #F2B05C; --ghost: #8FA3AA; --focus: #3CCFC4; --glass: rgba(20,28,32,.86);
+    --bg: #0D1316; --panel: #141C20; --stage: #0A1013; --ink: #E7EEF0; --ink2: #9CABB1; --line: #26343A; --asfalto: #2A373C; --kerb: #222F34; --band: #1B262B;
+    --accent: #3CCFC4; --accent-ink: #062321; --brake: #FF6B63; --throttle: #4CD98A; --throttle2: #2F7A52; --real: #F2B05C; --ghost: #8FA3AA; --focus: #3CCFC4; --glass: rgba(20,28,32,.86);
     color-scheme: dark;
   }
 }
 :root[data-theme="dark"] {
-  --bg: #0D1316; --panel: #141C20; --stage: #0A1013; --ink: #E7EEF0; --ink2: #9CABB1; --line: #26343A; --asfalto: #2A373C; --kerb: #1B262B; --band: #1B262B;
-  --accent: #3CCFC4; --accent-ink: #062321; --brake: #FF6B63; --throttle: #4CD98A; --real: #F2B05C; --ghost: #8FA3AA; --focus: #3CCFC4; --glass: rgba(20,28,32,.86);
+  --bg: #0D1316; --panel: #141C20; --stage: #0A1013; --ink: #E7EEF0; --ink2: #9CABB1; --line: #26343A; --asfalto: #2A373C; --kerb: #222F34; --band: #1B262B;
+  --accent: #3CCFC4; --accent-ink: #062321; --brake: #FF6B63; --throttle: #4CD98A; --throttle2: #2F7A52; --real: #F2B05C; --ghost: #8FA3AA; --focus: #3CCFC4; --glass: rgba(20,28,32,.86);
   color-scheme: dark;
 }
 * { box-sizing: border-box; }
 body { background: var(--bg); color: var(--ink); font-family: var(--f-body); font-size: 14px; line-height: 1.5; }
-.page { padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); padding-block: 20px 40px; }
+.page { padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); padding-block: 20px calc(96px + env(safe-area-inset-bottom, 0px)); }
 .wrap { max-width: 1360px; margin: 0 auto; display: flex; flex-direction: column; gap: 14px; }
 h1, h2, h3, .lbl { font-family: var(--f-display); text-transform: uppercase; letter-spacing: .06em; font-weight: 600; margin: 0; }
 h1 { font-size: 2rem; line-height: 1; }
+.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.brand { display: flex; align-items: center; gap: 16px; }
+.brand .sub { margin: 0; }
+.logo { flex: 0 0 auto; width: clamp(120px, 34vw, 190px); height: auto; }
 h2 { font-size: 1.05rem; color: var(--ink2); }
 h3 { font-size: 1.25rem; letter-spacing: .04em; }
 .lbl { font-size: .76rem; color: var(--ink2); letter-spacing: .09em; }
@@ -60,8 +64,8 @@ input[type=range] { width: 100%; accent-color: var(--accent); }
 .note { font-size: 12.5px; color: var(--ink2); }
 
 /* palco */
-.stage { position: relative; height: clamp(380px, 66vh, 700px); background: var(--stage); border: 1px solid var(--line); border-radius: 6px; overflow: hidden; touch-action: pan-y; }
-#map { position: absolute; inset: 0; width: 100%; height: 100%; display: block; cursor: crosshair; touch-action: pan-y; }
+.stage { position: relative; height: clamp(380px, 66vh, 700px); height: clamp(360px, calc(100dvh - 300px), 820px); background: var(--stage); border: 1px solid var(--line); border-radius: 6px; overflow: hidden; touch-action: none; overscroll-behavior: contain; -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; }
+#map { position: absolute; inset: 0; width: 100%; height: 100%; display: block; cursor: crosshair; touch-action: none; }
 .stage::after { content: ""; position: absolute; inset: 0; pointer-events: none; opacity: 0; transition: opacity .6s; background-image: repeating-linear-gradient(100deg, rgba(150,185,205,.5) 0 1px, transparent 1px 15px); background-size: 150px 150px; animation: rain .55s linear infinite; }
 .stage.rain1::after { opacity: .10; } .stage.rain2::after { opacity: .20; } .stage.rain3::after { opacity: .34; }
 @keyframes rain { to { background-position: -30px 150px; } }
@@ -70,6 +74,8 @@ input[type=range] { width: 100%; accent-color: var(--accent); }
 .stagebar { display: flex; flex-wrap: wrap; gap: 8px 20px; align-items: center; margin-bottom: -6px; }
 .sb { display: flex; align-items: center; gap: 8px; }
 .bl { left: 10px; bottom: 10px; display: flex; align-items: flex-end; gap: 14px; }
+.lapinfo { display: flex; align-items: baseline; flex-wrap: wrap; gap: 2px 14px; padding: 0 2px; }
+.lapinfo .small { font-size: 12.5px; color: var(--ink2); }
 .laptime { font-family: var(--f-data); font-weight: 500; font-size: 1.7rem; line-height: 1.1; }
 .hud .small { font-size: 12px; color: var(--ink2); }
 .pos { color: var(--brake); } .neg { color: var(--throttle); }
@@ -150,6 +156,30 @@ details ul { padding-left: 18px; margin: 8px 0; }
 pre { background: var(--bg); border: 1px solid var(--line); border-radius: 4px; padding: 10px 12px; overflow-x: auto; font-family: var(--f-data); font-size: 12px; margin: 8px 0; }
 .warn { padding: 8px 12px; border-left: 3px solid var(--real); background: var(--panel); font-size: 12.5px; color: var(--ink2); border-radius: 0 4px 4px 0; border: 1px solid var(--line); border-left: 3px solid var(--real); }
 
+/* gomme */
+.tyrepanel { padding-bottom: 14px; }
+.tyre-grid { display: grid; gap: 16px 22px; padding: 4px 16px 0; grid-template-columns: minmax(0, 1fr); align-items: start; }
+@media (min-width: 1000px) { .tyre-grid { grid-template-columns: minmax(220px, 3fr) minmax(220px, 3fr) minmax(300px, 5fr); } }
+.tcards { display: flex; flex-direction: column; gap: 6px; }
+.tcard { display: grid; grid-template-columns: 22px 1fr auto; gap: 10px; align-items: center; text-align: left; padding: 7px 10px; border: 1px solid var(--line); border-radius: 6px; background: var(--bg); cursor: pointer; }
+.tcard:hover { border-color: var(--accent); }
+.tcard.sel { border-color: var(--accent); box-shadow: 0 0 0 2px var(--accent) inset; }
+.ring { width: 20px; height: 20px; border-radius: 50%; border: 5px solid var(--c, #999); background: var(--bg); }
+.tcard .tn { font-weight: 600; font-size: 13px; line-height: 1.2; }
+.tcard .tn small { display: block; font-weight: 400; color: var(--ink2); font-size: 11.5px; }
+.tcard .td { font-family: var(--f-data); font-size: 13px; text-align: right; }
+.tcard .td.best { color: var(--throttle); }
+.fx { margin-bottom: 11px; }
+.fx-h { display: flex; justify-content: space-between; font-size: 12.5px; }
+.fx-h span { font-family: var(--f-display); text-transform: uppercase; letter-spacing: .08em; font-weight: 600; font-size: .8rem; color: var(--ink2); }
+.fx-b { height: 7px; background: var(--line); border-radius: 4px; overflow: hidden; margin: 4px 0; }
+.fx-b i { display: block; height: 100%; background: var(--accent); border-radius: 4px; transition: width .3s; }
+.fx.bad .fx-b i { background: var(--brake); }
+.fx-t { font-size: 12px; color: var(--ink2); }
+.ftot { font-family: var(--f-data); font-size: 13px; border-top: 1px solid var(--line); padding-top: 8px; }
+.tchart svg { width: 100%; height: auto; display: block; }
+.tchart .lg { display: flex; flex-wrap: wrap; gap: 4px 14px; font-size: 12px; color: var(--ink2); margin-top: 4px; }
+.tchart .lg i { display: inline-block; width: 12px; height: 4px; border-radius: 2px; margin-right: 5px; vertical-align: middle; }
 /* schermata di apertura */
 #splash { position: fixed; inset: 0; z-index: 1000; display: grid; place-items: center; background: var(--bg); transition: opacity .55s ease, visibility .55s; animation: splash-failsafe 0s 9s forwards; }
 #splash.hide { opacity: 0; visibility: hidden; pointer-events: none; }
@@ -166,12 +196,24 @@ pre { background: var(--bg); border: 1px solid var(--line); border-radius: 4px; 
 @keyframes sp-bar { 0% { transform: translateX(-110%); } 100% { transform: translateX(270%); } }
 @media (prefers-reduced-motion: reduce) { .sp-line { animation: none; stroke-dashoffset: 0; } .sp-bar i { animation: none; width: 100%; } }
 @media (max-width: 720px) {
-  .stage { height: clamp(340px, 56vh, 520px); }
+  .stage { height: clamp(340px, 56vh, 520px); height: clamp(340px, calc(100dvh - 330px), 680px); }
   .g-speed b { font-size: 1.9rem; } .g-gear b { width: 36px; height: 42px; font-size: 1.5rem; } .vbar { height: 44px; } .g-gg { display: none; }
   .bl { gap: 10px; padding: 6px 8px; } .laptime { font-size: 1.3rem; } .legend { display: none; }
   .banner { top: auto; bottom: 86px; max-width: calc(100% - 20px); }
   .clock { min-width: 0; margin-left: auto; }
 }
+/* schede */
+.tab { display: flex; flex-direction: column; gap: 14px; }
+.tab[hidden] { display: none !important; }
+#tabbar { position: fixed; left: 0; right: 0; bottom: 0; z-index: 50; display: flex; justify-content: center; gap: 0; padding: 6px max(8px, env(safe-area-inset-right, 0px)) calc(6px + env(safe-area-inset-bottom, 0px)) max(8px, env(safe-area-inset-left, 0px)); background: color-mix(in srgb, var(--bg) 88%, transparent); -webkit-backdrop-filter: blur(14px) saturate(1.4); backdrop-filter: blur(14px) saturate(1.4); border-top: 1px solid var(--line); }
+#tabbar button { flex: 1 1 0; max-width: 120px; min-width: 0; display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 4px 2px; background: none; border: 0; border-radius: 8px; color: var(--ink2); cursor: pointer; font: 500 10.5px/1.1 var(--f-body); -webkit-tap-highlight-color: transparent; }
+#tabbar svg { width: 25px; height: 25px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+#tabbar button[aria-selected="true"] { color: var(--accent); }
+#tabbar button[aria-selected="true"] svg { stroke-width: 2.2; }
+#tabbar button:focus-visible { outline: 2px solid var(--accent); }
+.mapsum { display: flex; align-items: center; justify-content: space-between; gap: 10px; width: 100%; text-align: left; padding: 9px 12px; border: 1px solid var(--line); border-radius: 6px; background: var(--panel, var(--bg)); color: var(--ink); cursor: pointer; font: 600 13px var(--f-body); }
+.mapsum span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.mapsum small { color: var(--accent); font-weight: 600; white-space: nowrap; }
 @media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
 </style>
 
@@ -182,15 +224,13 @@ pre { background: var(--bg); border: 1px solid var(--line); border-radius: 4px; 
       <path class="sp-line" pathLength="100" d="M52 150 C28 120 40 70 86 62 C130 54 150 86 190 78 C230 70 236 28 282 30 C330 32 338 96 306 128 C280 152 232 142 196 158 C150 176 84 178 52 150 Z"/>
       <circle r="7" fill="var(--ink)" stroke="var(--bg)" stroke-width="2.5"><animateMotion dur="2.2s" repeatCount="indefinite" keyPoints="0;1;1" keyTimes="0;.7;1" calcMode="linear"><mpath href="#sp-path"/></animateMotion></circle>
     </svg>
-    <h2 class="sp-title">Linea Ideale</h2>
-    <p class="sp-sub">Calcolo traiettorie, frenate e marce…</p>
-    <div class="sp-bar" aria-hidden="true"><i></i></div>
   </div>
 </div>
 <div class="page"><div class="wrap">
-  <header>
-    <h1>Linea Ideale</h1>
-    <p class="sub">Guarda il giro ideale, frena dove si frena, scegli la marcia giusta: cambia pista, auto e meteo e la traiettoria si ricalcola.</p>
+  <div class="tab" data-tab="imposta" hidden>
+  <header class="brand">
+    <svg class="logo" viewBox="14 10 340 180" role="img" aria-label="Linea Ideale"><path d="M52 150 C28 120 40 70 86 62 C130 54 150 86 190 78 C230 70 236 28 282 30 C330 32 338 96 306 128 C280 152 232 142 196 158 C150 176 84 178 52 150 Z" fill="none" stroke="var(--asfalto)" stroke-width="17" stroke-linejoin="round"/><path d="M52 150 C28 120 40 70 86 62" fill="none" stroke="#2BB5C9" stroke-width="4.6" stroke-linecap="round"/><path d="M86 62 C130 54 150 86 190 78" fill="none" stroke="#6BD27A" stroke-width="4.6" stroke-linecap="round"/><path d="M190 78 C230 70 236 28 282 30" fill="none" stroke="#F2A03A" stroke-width="4.6" stroke-linecap="round"/><path d="M282 30 C330 32 338 96 306 128" fill="none" stroke="#3FC7A0" stroke-width="4.6" stroke-linecap="round"/><path d="M306 128 C280 152 232 142 196 158" fill="none" stroke="#3B6FE0" stroke-width="4.6" stroke-linecap="round"/><path d="M196 158 C150 176 84 178 52 150" fill="none" stroke="#B7D84A" stroke-width="4.6" stroke-linecap="round"/><line x1="265.3" y1="22.2" x2="268.8" y2="39.9" stroke="var(--brake)" stroke-width="4"/><line x1="279.8" y1="150.8" x2="275.4" y2="133.3" stroke="var(--brake)" stroke-width="4"/><line x1="33.9" y1="134.9" x2="51.1" y2="129.5" stroke="var(--brake)" stroke-width="4"/><circle cx="47.2" cy="87.8" r="4.6" fill="var(--stage)" stroke="var(--ink)" stroke-width="2"/><circle cx="322.5" cy="99.5" r="4.6" fill="var(--stage)" stroke="var(--ink)" stroke-width="2"/><circle cx="212.9" cy="152.4" r="4.6" fill="var(--stage)" stroke="var(--ink)" stroke-width="2"/></svg>
+    <div><h1 class="sr">Linea Ideale</h1><p class="sub">Guarda il giro ideale, frena dove si frena, scegli la marcia giusta: cambia pista, auto e meteo e la traiettoria si ricalcola.</p></div>
   </header>
 
   <section class="panel bar" aria-label="Impostazioni">
@@ -199,19 +239,23 @@ pre { background: var(--bg); border: 1px solid var(--line); border-radius: 4px; 
     <div class="field"><span class="lbl" id="l-weather">Meteo</span><div class="chips" role="radiogroup" aria-labelledby="l-weather" id="seg-weather"></div></div>
     <div class="field"><span class="lbl" id="l-aero">Assetto aerodinamico</span><div class="chips" role="radiogroup" aria-labelledby="l-aero" id="seg-aero"></div></div>
     <div class="field"><div class="rangeval"><label class="lbl" for="rng-temp">Temperatura aria</label><span class="mono" id="v-temp"></span></div><input type="range" id="rng-temp" min="0" max="42" step="1" value="22"></div>
+    <div class="field"><label class="lbl" for="sel-tyre">Gomme</label><select id="sel-tyre"></select></div>
+    <div class="field"><div class="rangeval"><label class="lbl" for="rng-laps">Giri sulle gomme</label><span class="mono" id="v-laps"></span></div><input type="range" id="rng-laps" min="0" max="40" step="1" value="0"></div>
     <div class="field"><label class="lbl" for="sel-cmp">Confronta con</label><select id="sel-cmp"></select></div>
   </section>
   <div class="warn" id="champnote"></div>
+  </div>
 
+  <div class="tab" data-tab="mappa">
+  <button type="button" class="mapsum" id="mapsum" aria-label="Cambia impostazioni"></button>
+  <div class="lapinfo" id="hud-tl"></div>
   <div class="stagebar">
     <div class="sb"><span class="lbl">Colora per</span><div class="chips compact" role="radiogroup" aria-label="Colora la linea per" id="seg-color"></div></div>
     <div class="sb"><span class="lbl">Camera</span><div class="chips compact" role="radiogroup" aria-label="Camera" id="seg-cam"></div></div>
-    <div class="sb"><span class="lbl">Larghezza pista</span><div class="chips compact" role="radiogroup" aria-label="Larghezza della pista" id="seg-wide"></div></div>
     <div class="sb"><button class="zoomout" id="b-zin" type="button" aria-label="Ingrandisci la mappa">+</button><button class="zoomout" id="b-zout" type="button" aria-label="Riduci la mappa">−</button><button class="zoomout" id="b-zoomout" type="button" hidden>Torna alla pista intera</button></div>
   </div>
   <section class="stage" id="stage" aria-label="Mappa interattiva">
     <svg id="map" role="img" aria-label="Mappa della pista con la linea ideale. Passa il cursore o trascina per scorrere il giro."></svg>
-    <div class="hud tl" id="hud-tl"></div>
     <div class="banner" id="banner" aria-live="off"></div>
     <div class="hud bl" id="hud-bl">
       <div class="g-speed"><b id="h-speed">0</b><small>km/h</small></div>
@@ -230,12 +274,27 @@ pre { background: var(--bg); border: 1px solid var(--line); border-radius: 4px; 
     <span class="clock" id="clock"></span>
   </section>
   <div class="stats" id="stats"></div>
+  </div>
 
+  <div class="tab" data-tab="gomme" hidden>
+  <section class="panel tyrepanel" id="tyrepanel" aria-label="Gomme">
+    <div class="sec"><h2>Gomme</h2><span class="note" id="tyre-note"></span></div>
+    <div class="tyre-grid">
+      <div><div class="lbl" style="margin-bottom:6px">Scegli la mescola</div><div class="tcards" id="tcards"></div></div>
+      <div><div class="lbl" style="margin-bottom:8px">Cosa dà l’aderenza</div><div id="tfx"></div></div>
+      <div class="tchart"><div class="lbl" style="margin-bottom:4px">Degrado sul numero di giri</div><div id="tchart"></div></div>
+    </div>
+  </section>
+  </div>
+
+  <div class="tab" data-tab="curve" hidden>
   <section class="detail panel" id="detail" hidden></section>
   <section aria-label="Curve"><div class="strip" id="strip"></div></section>
 
   <section class="panel" id="charts" aria-label="Telemetria simulata"></section>
+  </div>
 
+  <div class="tab" data-tab="dati" hidden>
   <section class="panel tools">
     <div class="imports">
       <label class="btn"><input type="file" id="f-track" accept=".geojson,.json,.csv,.txt">Carica un tracciato</label>
@@ -257,13 +316,22 @@ tel[['Distance','Speed','nGear','Throttle','Brake']].to_csv('monza_pole.csv', in
     <details>
       <summary>Cosa è misurato e cosa è stimato</summary>
       <ul>
-        <li><b>Misurato.</b> Lunghezza ufficiale delle piste e tempi di pole 2026 di Monza (<a target="_blank" rel="noopener" href="https://www.crash.net/f1/results/1103771/1/f1-2026-italian-grand-prix-full-qualifying-result-monza">1:21.786</a>), Spa (<a target="_blank" rel="noopener" href="https://www.motorsport.com/f1/news/f1-belgian-gp-qualifying-report/10839833/">1:44.361</a>), Monaco (<a target="_blank" rel="noopener" href="https://www.crash.net/f1/results/1097307/1/2026-f1-monaco-grand-prix-full-qualifying-results">1:12.051</a>) e Silverstone (<a target="_blank" rel="noopener" href="https://www.crash.net/f1/results/1100236/1/2026-f1-silverstone-full-british-gp-qualifying-results">1:28.111</a>). Dati tecnici F1 2026 dal <a target="_blank" rel="noopener" href="https://www.formula1.com/en/latest/article/from-smaller-cars-to-a-bigger-budget-cap-12-rule-changes-you-need-to-know-about-in.56uUTFhB0z5j3iZfhC0rGP">regolamento</a>: 768 kg, motore da circa 400 kW più 350 kW elettrici.</li>
+        <li><b>Misurato.</b> Lunghezza ufficiale delle piste e tempi di pole 2026 di Monza (<a target="_blank" rel="noopener" href="https://www.crash.net/f1/results/1103771/1/f1-2026-italian-grand-prix-full-qualifying-result-monza">1:21.786</a>), Spa (<a target="_blank" rel="noopener" href="https://www.motorsport.com/f1/news/f1-belgian-gp-qualifying-report/10839833/">1:44.361</a>), Monaco (<a target="_blank" rel="noopener" href="https://www.crash.net/f1/results/1097307/1/2026-f1-monaco-grand-prix-full-qualifying-results">1:12.051</a>) e Silverstone (<a target="_blank" rel="noopener" href="https://www.crash.net/f1/results/1100236/1/2026-f1-silverstone-full-british-gp-qualifying-results">1:28.111</a>). Lusail (Qatar) non ha ancora una pole 2026: il tempo di riferimento è una stima dalla <a target="_blank" rel="noopener" href="https://www.formula1.com/en/latest/article/piastri-takes-crucial-qatar-grand-prix-pole-ahead-of-norris-and-verstappen.3wFuWKkl0nI0Ohler7CzOt">pole 2025</a> (1:19.387) con il rapporto medio 2026/2025 delle altre piste. Dati tecnici F1 2026 dal <a target="_blank" rel="noopener" href="https://www.formula1.com/en/latest/article/from-smaller-cars-to-a-bigger-budget-cap-12-rule-changes-you-need-to-know-about-in.56uUTFhB0z5j3iZfhC0rGP">regolamento</a>: 768 kg, motore da circa 400 kW più 350 kW elettrici.</li>
         <li><b>Stimato.</b> I tracciati integrati sono schemi costruiti da sequenza e raggio delle curve, chiusi e scalati alla lunghezza ufficiale: la forma non è quella esatta. Le auto sono modelli a punto materiale con downforce, ellisse di aderenza e limite di potenza. Per la F1 aderenza e carico sono tarati sulle quattro pole, con un fattore per pista che assorbe ciò che il modello non vede. WEC, GT3 e F3 hanno parametri indicativi, senza taratura sui tempi.</li>
         <li><b>Non modellato.</b> Dislivelli, dossi, vento, usura gomme, carburante, gestione dell'energia, traffico, regole di BoP aggiornate. Con la pioggia il modello riduce aderenza e larghezza di pista usabile (si evita la gomma depositata), ma non l'acquaplaning né i ruscelli.</li>
       </ul>
     </details>
   </section>
+  </div>
 </div></div>
+
+<nav id="tabbar" role="tablist" aria-label="Sezioni">
+  <button type="button" role="tab" data-go="imposta"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h9M17 7h3M4 17h3M11 17h9"/><circle cx="15" cy="7" r="2"/><circle cx="9" cy="17" r="2"/></svg>Imposta</button>
+  <button type="button" role="tab" data-go="mappa"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 4 3 6.5v13L9 17l6 3 6-2.5v-13L15 7 9 4Z"/><path d="M9 4v13M15 7v13"/></svg>Mappa</button>
+  <button type="button" role="tab" data-go="gomme"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="3.2"/><path d="M12 3.5v5.3M12 15.2v5.3M3.5 12h5.3M15.2 12h5.3"/></svg>Gomme</button>
+  <button type="button" role="tab" data-go="curve"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 18c4 0 3-12 8-12s3 12 10 12"/><path d="M3 21h18"/></svg>Curve</button>
+  <button type="button" role="tab" data-go="dati"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v11M7.5 10.5 12 15l4.5-4.5M5 19.5h14"/></svg>Dati</button>
+</nav>
 
 <script>
 /* Motore di simulazione del giro: tracciato -> linea ideale -> profilo di velocita'.
@@ -391,6 +459,20 @@ tel[['Distance','Speed','nGear','Throttle','Brake']].to_csv('monza_pole.csv', in
         S(250, { flex: true })
       ],
       ref: { 2026: 88.111 }
+    },
+    lusail: {
+      id: 'lusail', name: 'Lusail (Qatar)', country: 'Qatar', length: 5419, width: 13, kerb: 0.4, alt: 10,
+      cal: 0.991, segs: [
+        S(1068),
+        R(70, 95, 'Curva 1'), S(50, { flex: true }), L(70, 50, 'Curva 2'), S(30), R(180, 30, 'Curva 3'),
+        S(110, { flex: true }), R(55, 90, 'Curva 4'), S(35), L(90, 30, 'Curva 5'), S(90, { flex: true }),
+        L(45, 110, 'Curva 6'), S(60, { flex: true }), R(80, 110, 'Curva 7'), S(110, { flex: true }),
+        L(300, 12, 'Curva 8'), S(90, { flex: true }), R(150, 50, 'Curva 9'), S(130, { flex: true }),
+        L(65, 70, 'Curva 10'), S(20), R(60, 60, 'Curva 11'), S(300, { flex: true }),
+        R(150, 50, 'Curva 12'), R(130, 60, 'Curva 13'), R(110, 70, 'Curva 14'), S(130, { flex: true }),
+        L(75, 55, 'Curva 15'), S(60, { flex: true }), R(95, 115, 'Curva 16'), S(70, { flex: true })
+      ],
+      ref: {}, est: { 2026: 82.36 }
     }
   };
 
@@ -400,25 +482,58 @@ tel[['Distance','Speed','nGear','Throttle','Brake']].to_csv('monza_pole.csv', in
   const CHAMPS = {
     f1: {
       id: 'f1', name: 'Formula 1 (2026)', tyre: 'Pirelli slick C1-C5',
-      note: 'Motore 400 kW + MGU-K 350 kW. Peso minimo 768 kg. Aderenza e carico tarati sulle pole 2026 di Monza, Spa, Monaco e Silverstone (scarto entro il 2%).',
-      car: { m: 790, P: 560, mu: 1.25, ClA: 4.1, CdA: 1.3, tf: 0.62, brk: 50, gears: [78, 112, 148, 182, 216, 252, 290, 350] }
+      note: 'Motore 400 kW + MGU-K 350 kW. Peso minimo 768 kg. Aderenza e carico tarati sulle pole 2026 di Monza, Spa, Monaco e Silverstone (scarto entro il 2%). Lusail è tarato su una stima ricavata dalla pole 2025, perché il GP 2026 non è ancora stato corso.',
+      car: { m: 790, P: 560, mu: 1.25, ClA: 4.1, CdA: 1.3, tf: 0.62, brk: 50, aMax: 17, gears: [78, 112, 148, 182, 216, 252, 290, 350] }
     },
     wec: {
       id: 'wec', name: 'WEC Hypercar', tyre: 'Michelin slick',
       note: 'Balance of Performance: potenza limitata a circa 500 kW. Peso minimo circa 1030 kg.',
-      car: { m: 1060, P: 480, mu: 1.3, ClA: 2.6, CdA: 0.95, tf: 0.55, brk: 38, gears: [65, 100, 138, 176, 215, 265, 350] }
+      car: { m: 1060, P: 480, mu: 1.3, ClA: 2.6, CdA: 0.95, tf: 0.55, brk: 38, aMax: 13, gears: [65, 100, 138, 176, 215, 265, 350] }
     },
     gt3: {
       id: 'gt3', name: 'GT World Challenge (GT3)', tyre: 'Pirelli / Michelin slick',
       note: 'Auto derivate dalla serie con BoP. Peso circa 1300 kg, ABS e controllo di trazione.',
-      car: { m: 1300, P: 380, mu: 1.15, ClA: 1.5, CdA: 1.05, tf: 0.55, brk: 26, gears: [70, 105, 140, 180, 225, 290] }
+      car: { m: 1300, P: 380, mu: 1.15, ClA: 1.5, CdA: 1.05, tf: 0.55, brk: 26, aMax: 9, gears: [70, 105, 140, 180, 225, 290] }
     },
     f3: {
       id: 'f3', name: 'FIA Formula 3', tyre: 'Pirelli slick',
       note: 'Monoposto monomarca, circa 285 kW, peso minimo 673 kg.',
-      car: { m: 690, P: 270, mu: 1.3, ClA: 2.1, CdA: 0.95, tf: 0.62, brk: 45, gears: [60, 95, 130, 165, 205, 285] }
+      car: { m: 690, P: 270, mu: 1.3, ClA: 2.1, CdA: 0.95, tf: 0.62, brk: 45, aMax: 11, gears: [60, 95, 130, 165, 205, 285] }
     }
   };
+
+  /* ---------- Gomme ---------- */
+  // grip: aderenza relativa alla media; topt/half: finestra ottimale di temperatura della pista (gradi C);
+  // deg: perdita di aderenza per giro; life: giri oltre i quali il degrado accelera (cliff).
+  const TYRES = {
+    soft:   { id: 'soft',   name: 'Morbida',    type: 'slick', grip: 1.03,  topt: 26, half: 8,  deg: 0.0030, life: 14, cliff: 0.005 },
+    medium: { id: 'medium', name: 'Media',      type: 'slick', grip: 1.00,  topt: 33, half: 9,  deg: 0.0020, life: 24, cliff: 0.004 },
+    hard:   { id: 'hard',   name: 'Dura',       type: 'slick', grip: 0.965, topt: 41, half: 10, deg: 0.0012, life: 38, cliff: 0.003 },
+    inter:  { id: 'inter',  name: 'Intermedia', type: 'inter', grip: 1.00,  topt: 22, half: 10, deg: 0.0025, life: 20, cliff: 0.004 },
+    wet:    { id: 'wet',    name: 'Pioggia',    type: 'wet',   grip: 1.00,  topt: 20, half: 10, deg: 0.0015, life: 30, cliff: 0.003 }
+  };
+  // aderenza relativa della categoria di gomma sul fondo (1 = condizione per cui e' progettata)
+  const SURF = {
+    slick: { dry: 1.00, damp: 0.55, wet: 0.30, storm: 0.20 },
+    inter: { dry: 0.86, damp: 0.80, wet: 0.60, storm: 0.42 },
+    wet:   { dry: 0.72, damp: 0.74, wet: 0.64, storm: 0.50 }
+  };
+  CHAMPS.f1.tyres = ['soft', 'medium', 'hard', 'inter', 'wet'];
+  CHAMPS.wec.tyres = CHAMPS.gt3.tyres = CHAMPS.f3.tyres = ['soft', 'medium', 'hard', 'wet'];
+  function pickTyre(champ, weatherId) {
+    if (weatherId === 'dry') return 'medium';
+    if (weatherId === 'damp') return champ.tyres.indexOf('inter') >= 0 ? 'inter' : 'wet';
+    return 'wet';
+  }
+  function tyreFactors(champ, tyreId, weatherId, temp, laps) {
+    const id = tyreId === 'auto' || champ.tyres.indexOf(tyreId) < 0 ? pickTyre(champ, weatherId) : tyreId, ty = TYRES[id];
+    const surf = SURF[ty.type][weatherId], tTrack = temp + (weatherId === 'dry' ? 10 : 2);
+    const d = Math.abs(tTrack - ty.topt) - ty.half;
+    const tf = d > 0 ? Math.max(0.72, 1 - (tTrack > ty.topt ? 0.006 : 0.004) * d) : 1;
+    const mult = (ty.type === 'inter' && weatherId === 'dry') || (ty.type === 'wet' && (weatherId === 'dry' || weatherId === 'damp')) ? 3 : 1;
+    const wear = Math.max(0.65, 1 - ty.deg * mult * laps - (laps > ty.life ? ty.cliff * (laps - ty.life) : 0));
+    return { id, name: ty.name, type: ty.type, grip: ty.grip, surf, temp: tf, wear, total: surf * ty.grip * tf * wear, tTrack, topt: ty.topt, half: ty.half, life: ty.life, laps };
+  }
 
   /* ---------- Meteo ---------- */
   const WEATHER = {
@@ -668,8 +783,8 @@ tel[['Distance','Speed','nGear','Throttle','Brake']].to_csv('monza_pole.csv', in
     const cl = opts.centerline || buildCenterline(track, ds);
     const N = cl.N;
     const rho = 101325 / (287.05 * (temp + 273.15)) * Math.exp(-track.alt / 8400);
-    const tempGrip = weather.id === 'dry' ? 1 - 0.0016 * Math.abs(temp + 8 - 30) : 1;
-    const env = { rho, mu: weather.mu * tempGrip * (track.cal || 1) };
+    const tf = tyreFactors(champ, opts.tyre || 'auto', weather.id, temp, opts.laps || 0);
+    const env = { rho, mu: (opts.muFixed != null ? opts.muFixed : tf.total) * (track.cal || 1) };
     const car = champ.car, M = carModel(car, env, aero);
     const half = Math.max(0.6, (track.width / 2 + track.kerb - 1.0) * weather.width);
     const lo = new Float64Array(N).fill(-half), hi = new Float64Array(N).fill(half);
@@ -679,20 +794,37 @@ tel[['Distance','Speed','nGear','Throttle','Brake']].to_csv('monza_pole.csv', in
     const s = new Float64Array(N + 1); for (let i = 0; i < N; i++) s[i + 1] = s[i] + dsl[i];
     let time = 0; for (let i = 0; i < N; i++) time += dsl[i] * 2 / (v[i] + v[(i + 1) % N]);
     const brake = new Float64Array(N), thr = new Float64Array(N), gear = new Uint8Array(N), acc = new Float64Array(N), latg = new Float64Array(N);
+    // pedali: forza richiesta rispetto a quella disponibile (non piu' tutto o niente)
+    const dtS = new Float64Array(N);
     for (let i = 0; i < N; i++) {
       const j = (i + 1) % N, a = (v[j] * v[j] - v[i] * v[i]) / (2 * dsl[i]); acc[i] = a;
-      const drag = M.kD * v[i] * v[i] + M.roll, dec = M.decel(v[i], kap[i]);
-      if (a < -0.3 - drag * 0) {
-        const need = -a - drag;
-        brake[i] = need > 0.4 ? Math.min(100, 100 * need / Math.max(0.1, dec - drag)) : 0;
+      dtS[i] = dsl[i] * 2 / (v[i] + v[j]);
+      const drag = M.kD * v[i] * v[i] + M.roll;
+      const need = -a - drag;
+      if (a < -0.3 && need > 0.4) {
+        // freno: pressione proporzionale alla decelerazione richiesta rispetto al massimo in rettilineo a quella velocita':
+        // in staccata e' al picco, poi si scarica man mano che la curva usa aderenza laterale (trail braking)
+        const ref = Math.max(2, Math.min(car.brk, M.mu * (G + M.kA * v[i] * v[i])));
+        brake[i] = Math.min(100, 100 * need / ref);
       }
       if (brake[i] === 0) {
-        const Fa = Math.max(0.1, M.driveA(v[i], kap[i])), Fd = a + drag;
-        thr[i] = Math.max(0, Math.min(100, 100 * Fd / Fa)); if (thr[i] > 96) thr[i] = 100;
+        // gas: forza motrice richiesta rispetto a quella massima del motore (coppia a bassa velocita', potenza ad alta)
+        const Fd = Math.max(0, a + drag), Fmax = Math.min(car.aMax || 12, M.Pm / Math.max(v[i], 8));
+        thr[i] = Math.min(100, 100 * Fd / Math.max(1, Fmax)); if (thr[i] > 97) thr[i] = 100;
       }
       gear[i] = gearFor(car, v[i]);
       latg[i] = v[i] * v[i] * Math.abs(kap[i]) / G;
     }
+    // dinamica del piede: il freno sale in ~0.12 s (rampa che finisce dove inizia la staccata), si scarica con gradualita';
+    // il gas sale al massimo in ~0.35 s e si solleva in ~0.07 s; poco gas di mantenimento in percorrenza
+    const rise = 100 / 0.12, relB = 100 / 0.45, riseT = 100 / 0.35, fallT = 100 / 0.07;
+    for (let n = 0; n < 2 * N; n++) { const i = (N - 1 - (n % N) + N) % N, j = (i + 1) % N; const lim = brake[j] - rise * dtS[i]; if (brake[i] < lim) brake[i] = lim; }
+    for (let n = 0; n < 2 * N; n++) { const i = n % N, h = (i - 1 + N) % N; const lim = brake[h] - relB * dtS[h]; if (brake[i] < lim && brake[i] > 0) brake[i] = Math.max(brake[i], lim); }
+    for (let i = 0; i < N; i++) if (brake[i] < 1) brake[i] = 0;
+    for (let i = 0; i < N; i++) if (brake[i] > 0) thr[i] = 0;
+    for (let n = 0; n < 2 * N; n++) { const i = n % N, h = (i - 1 + N) % N; if (brake[i] > 0) continue; const up = thr[h] + riseT * dtS[h]; if (thr[i] > up) thr[i] = up; const dn = thr[h] - fallT * dtS[h]; if (thr[i] < dn) thr[i] = dn; }
+    for (let n = 0; n < 2 * N; n++) { const i = (N - 1 - (n % N) + N) % N, j = (i + 1) % N; const dn = thr[j] - fallT * dtS[i]; if (thr[i] < dn) thr[i] = dn; }
+    for (let i = 0; i < N; i++) thr[i] = Math.round(thr[i] * 10) / 10;
     // curve
     const ds2 = cl.ds;
     const out = [];
@@ -738,7 +870,7 @@ tel[['Distance','Speed','nGear','Throttle','Brake']].to_csv('monza_pole.csv', in
     let vmax = 0, vmin = 1e9; for (let i = 0; i < N; i++) { vmax = Math.max(vmax, kmh[i]); vmin = Math.min(vmin, kmh[i]); }
     return {
       N, time, length: s[N], x: line.x, y: line.y, cx: cl.cx, cy: cl.cy, d: line.d, s, v: kmh, brake, thr, gear, latg,
-      corners: out, vmax, vmin, vavg: s[N] / time * 3.6, half, rho, muEff: M.mu, car, closure: cl.closure
+      corners: out, tyre: tf, vmax, vmin, vavg: s[N] / time * 3.6, half, rho, muEff: M.mu, car, closure: cl.closure
     };
   }
 
@@ -769,7 +901,7 @@ tel[['Distance','Speed','nGear','Throttle','Brake']].to_csv('monza_pole.csv', in
     };
   }
 
-  root.Engine = { TRACKS, CHAMPS, WEATHER, AERO, buildCenterline, analyze, trackFromLonLat, trackFromXY, closeSegments, G };
+  root.Engine = { TRACKS, CHAMPS, WEATHER, AERO, TYRES, SURF, tyreFactors, pickTyre, buildCenterline, analyze, trackFromLonLat, trackFromXY, closeSegments, G };
   if (typeof module !== 'undefined' && module.exports) module.exports = root.Engine;
 })(typeof window !== 'undefined' ? window : globalThis);
 
@@ -779,7 +911,7 @@ tel[['Distance','Speed','nGear','Throttle','Brake']].to_csv('monza_pole.csv', in
   'use strict';
   const E = window.Engine, $ = s => document.querySelector(s);
   const reduce = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
-  const state = { track: 'monza', champ: 'f1', weather: 'dry', aero: 'mid', temp: 22, color: 'speed', cam: 'full', cmp: 'none', wide: 'wide', speed: 2, t: 0, playing: false, hover: null, sel: null, real: null, range: null };
+  const state = { track: 'monza', champ: 'f1', weather: 'dry', aero: 'mid', temp: 22, color: 'speed', cam: 'full', cmp: 'none', tyre: 'auto', laps: 0, wide: 'wide', speed: 2, t: 0, playing: false, hover: null, sel: null, real: null, range: null };
   const customs = {}, cache = {}, clCache = {};
   let cur = null, cmp = null, realAligned = null, DX = null, DY = null, CDX = null, CDY = null, K = 1, panning = null;
   const VW = 1000; let VH = 600, U = 1, view = null, anim = null, chartGeom = null, dragging = false;
@@ -813,17 +945,17 @@ tel[['Distance','Speed','nGear','Throttle','Brake']].to_csv('monza_pole.csv', in
     chips('#seg-aero', 'aero', [['low', 'Basso'], ['mid', 'Medio'], ['high', 'Alto']], state.aero);
     chips('#seg-color', 'color', [['speed', 'Velocità'], ['pedals', 'Pedali'], ['gear', 'Marcia']], state.color);
     chips('#seg-cam', 'cam', [['full', 'Pista intera'], ['follow', 'Segui l’auto']], state.cam);
-    chips('#seg-wide', 'wide', [['wide', 'Ingrandita'], ['real', 'Reale']], state.wide);
     chips('#seg-speed', 'spd', [['1', '1×'], ['2', '2×'], ['4', '4×'], ['8', '8×']], String(state.speed));
     $('#sel-track').addEventListener('change', e => { state.track = e.target.value; update({ resetT: true }); });
     $('#sel-champ').addEventListener('change', e => { state.champ = e.target.value; update(); });
     $('#seg-weather').addEventListener('change', e => { state.weather = e.target.value; update(); });
     $('#seg-aero').addEventListener('change', e => { state.aero = e.target.value; update(); });
     $('#rng-temp').addEventListener('input', e => { state.temp = +e.target.value; $('#v-temp').textContent = state.temp + ' °C'; update(); });
+    $('#sel-tyre').addEventListener('change', e => { state.tyre = e.target.value; update(); });
+    $('#rng-laps').addEventListener('input', e => { state.laps = +e.target.value; update(); });
     $('#sel-cmp').addEventListener('change', e => { state.cmp = e.target.value; update(); });
     $('#seg-color').addEventListener('change', e => { state.color = e.target.value; renderMap(); });
     $('#seg-cam').addEventListener('change', e => { state.cam = e.target.value; if (state.cam === 'follow') state.sel = null; goView(true); renderStrip(); renderDetail(); syncZoomBtn(); });
-    $('#seg-wide').addEventListener('change', e => { state.wide = e.target.value; renderMap(); updateDots(); });
     $('#b-zin').addEventListener('click', () => zoomBy(1.6)); $('#b-zout').addEventListener('click', () => zoomBy(1 / 1.6));
     $('#seg-speed').addEventListener('change', e => { state.speed = +e.target.value; });
     $('#v-temp').textContent = state.temp + ' °C';
@@ -861,7 +993,7 @@ tel[['Distance','Speed','nGear','Throttle','Brake']].to_csv('monza_pole.csv', in
       for (let i = 0; i < N; i += stp) for (let j = i + gap; j < N; j += stp) { if (N - (j - i) < gap) continue; const dx = r.cx[i] - r.cx[j], dy = r.cy[i] - r.cy[j], d = dx * dx + dy * dy; if (d < m) m = d; }
       r.minSep = Math.sqrt(m); }
     r.corners.forEach(c => {
-      let ig = c.iApex; while (ig < N - 1 && ig < c.iApex + 300 && r.thr[ig] < 90) ig++;
+      let ig = c.iApex; while (ig < N - 1 && ig < c.iApex + 300 && r.thr[ig] < 97) ig++;
       c.iGas = ig; c.gasDist = r.s[ig] - r.s[c.iApex];
       c.i0 = c.iBrake != null ? c.iBrake : c.iA;
       const seq = []; let last = -1; for (let i = c.i0; i <= c.iExit; i++) if (r.gear[i] !== last) { seq.push(r.gear[i]); last = r.gear[i]; }
@@ -869,17 +1001,19 @@ tel[['Distance','Speed','nGear','Throttle','Brake']].to_csv('monza_pole.csv', in
     });
     r._p = 1; return r;
   }
-  function run(weatherId, champId) {
-    const key = [state.track, champId, weatherId, state.aero, state.temp].join('|');
-    return cache[key] || (cache[key] = prep(E.analyze({ track: trackObj(state.track), champ: E.CHAMPS[champId], weather: E.WEATHER[weatherId], aero: E.AERO[state.aero], temp: state.temp, centerline: centerline(state.track) })));
+  function run(weatherId, champId, auto) {
+    const tyre = auto || E.CHAMPS[champId].tyres.indexOf(state.tyre) < 0 ? 'auto' : state.tyre;
+    const key = [state.track, champId, weatherId, state.aero, state.temp, tyre, state.laps].join('|');
+    return cache[key] || (cache[key] = prep(E.analyze({ track: trackObj(state.track), champ: E.CHAMPS[champId], weather: E.WEATHER[weatherId], aero: E.AERO[state.aero], temp: state.temp, centerline: centerline(state.track), tyre, laps: state.laps })));
   }
   function update(o) {
     o = o || {};
     const f = cur && !o.resetT ? state.t / cur.time : 0;
     if (o.resetT) { state.sel = null; state.range = null; state.hover = null; if (state.cam === 'free') { state.cam = 'full'; const ci = $('#seg-cam input[value=full]'); if (ci) ci.checked = true; } }
-    cur = run(state.weather, state.champ);
+    cur = run(state.weather, state.champ, false);
+    refreshTyreSelect();
     refreshCompare();
-    cmp = state.cmp === 'none' ? null : state.cmp === 'dry' ? run('dry', state.champ) : run(state.weather, state.cmp);
+    cmp = state.cmp === 'none' ? null : state.cmp === 'dry' ? run('dry', state.champ, true) : run(state.weather, state.cmp, true);
     if (state.sel != null && state.sel >= cur.corners.length) state.sel = null;
     state.t = f * cur.time;
     alignReal();
@@ -888,7 +1022,7 @@ tel[['Distance','Speed','nGear','Throttle','Brake']].to_csv('monza_pole.csv', in
   }
   function renderStatic() {
     sizeStage(); view = targetView();
-    renderHeadings(); renderMap(); renderTicks(); renderStrip(); renderDetail(); renderCharts(); draw();
+    renderHeadings(); renderTyres(); renderMap(); renderTicks(); renderStrip(); renderDetail(); renderCharts(); draw();
   }
 
   /* ---------- telemetria reale ---------- */
@@ -949,12 +1083,14 @@ tel[['Distance','Speed','nGear','Throttle','Brake']].to_csv('monza_pole.csv', in
   function renderHeadings() {
     const r = cur, tr = trackObj(state.track), ch = E.CHAMPS[state.champ];
     let sub = '';
-    if (state.champ === 'f1' && tr.ref && tr.ref[2026] && state.weather === 'dry' && state.aero === 'mid' && state.temp === 22) { const d = r.time - tr.ref[2026]; sub = 'Pole reale 2026 ' + fmtT(tr.ref[2026]) + ' (' + (d >= 0 ? '+' : '') + d.toFixed(2) + ' s)'; }
-    else if (state.weather !== 'dry') { const d = run('dry', state.champ); sub = '<span class="pos">+' + (r.time - d.time).toFixed(2) + ' s</span> rispetto all’asciutto'; }
+    if (state.champ === 'f1' && tr.est && state.weather === 'dry' && state.aero === 'mid' && state.temp === 22) sub = 'Stima pole 2026 ' + fmtT(tr.est[2026]) + ' (da pole 2025, non ancora corsa)';
+    else if (state.champ === 'f1' && tr.ref && tr.ref[2026] && state.weather === 'dry' && state.aero === 'mid' && state.temp === 22) { const d = r.time - tr.ref[2026]; sub = 'Pole reale 2026 ' + fmtT(tr.ref[2026]) + ' (' + (d >= 0 ? '+' : '') + d.toFixed(2) + ' s)'; }
+    else if (state.weather !== 'dry') { const d = run('dry', state.champ, true); sub = '<span class="pos">+' + (r.time - d.time).toFixed(2) + ' s</span> rispetto all’asciutto'; }
     else if (state.champ === 'f1' && tr.ref && tr.ref[2026]) sub = 'Pole reale 2026 ' + fmtT(tr.ref[2026]);
-    $('#hud-tl').innerHTML = '<div class="lbl">' + esc(tr.name) + ' · ' + esc(ch.name) + '</div><div class="laptime">' + fmtT(r.time) + '</div><div class="small">' + sub + '</div>';
+    const ty = r.tyre, wrong = ty.id !== E.pickTyre(ch, state.weather) && ty.surf < 0.95;
+    $('#hud-tl').innerHTML = '<div class="laptime">' + fmtT(r.time) + '</div><div class="small">' + sub + (wrong ? ' · <span class="pos">gomme non adatte al fondo</span>' : '') + '</div>';
     $('#champnote').textContent = ch.name + ' · ' + ch.tyre + '. ' + ch.note + (state.track === 'import' ? ' Tracciato importato: può differire dalla pista reale per larghezza e cordoli.' : '');
-    $('#stats').innerHTML = '<span>Velocità massima <b>' + f0(r.vmax) + ' km/h</b></span><span>Media <b>' + f0(r.vavg) + ' km/h</b></span><span>Curva più lenta <b>' + f0(r.vmin) + ' km/h</b></span><span>Gomme <b>' + esc(E.WEATHER[state.weather].tyre) + '</b></span><span>Aderenza <b>' + r.muEff.toFixed(2) + '</b></span>' +
+    $('#stats').innerHTML = '<span>Velocità massima <b>' + f0(r.vmax) + ' km/h</b></span><span>Media <b>' + f0(r.vavg) + ' km/h</b></span><span>Curva più lenta <b>' + f0(r.vmin) + ' km/h</b></span><span>Gomme <b>' + esc(r.tyre.name) + '</b></span><span>Aderenza <b>' + r.muEff.toFixed(2) + '</b></span>' +
       (cmp ? '<span>Confronto <b>' + fmtT(cmp.time) + '</b> (' + (r.time - cmp.time >= 0 ? '+' : '') + (r.time - cmp.time).toFixed(2) + ' s)</span>' : '') +
       (realAligned ? '<span style="color:var(--real)">Scarto dalla telemetria <b style="color:var(--real)">' + realAligned.mad.toFixed(1) + ' km/h</b></span>' : '');
   }
@@ -972,7 +1108,7 @@ tel[['Distance','Speed','nGear','Throttle','Brake']].to_csv('monza_pole.csv', in
   function overviewView() {
     const r = cur; let x0 = 1e9, x1 = -1e9, y0 = 1e9, y1 = -1e9;
     for (let i = 0; i < r.N; i++) { x0 = Math.min(x0, r.cx[i]); x1 = Math.max(x1, r.cx[i]); y0 = Math.min(y0, r.cy[i]); y1 = Math.max(y1, r.cy[i]); }
-    return fit(x0, x1, y0, y1, phone() ? { l: 24, r: 24, t: 84, b: 120 } : { l: 40, r: 40, t: 96, b: 124 });
+    return fit(x0, x1, y0, y1, phone() ? { l: 24, r: 24, t: 28, b: 120 } : { l: 40, r: 40, t: 36, b: 124 });
   }
   function cornerView(c) {
     const r = cur; let x0 = 1e9, x1 = -1e9, y0 = 1e9, y1 = -1e9;
@@ -1004,7 +1140,7 @@ tel[['Distance','Speed','nGear','Throttle','Brake']].to_csv('monza_pole.csv', in
   function normal(i) { return [cur.nx[i], cur.ny[i]]; }
   function colorFn() {
     const r = cur;
-    if (state.color === 'pedals') return i => (r.brake[i] > 4 ? 'var(--brake)' : r.thr[i] >= 96 ? 'var(--throttle)' : 'var(--real)');
+    if (state.color === 'pedals') return i => (r.brake[i] > 4 ? 'var(--brake)' : r.thr[i] >= 97 ? 'var(--throttle)' : r.thr[i] > 8 ? 'var(--throttle2)' : 'var(--real)');
     if (state.color === 'gear') { const gm = r.car.gears.length; return i => ramp((r.gear[i] - 1) / Math.max(1, gm - 1)); }
     const lo = r.vmin, hi = r.vmax; return i => ramp(Math.round((r.v[i] - lo) / (hi - lo) * 24) / 24);
   }
@@ -1013,14 +1149,16 @@ tel[['Distance','Speed','nGear','Throttle','Brake']].to_csv('monza_pole.csv', in
     if (!cur || !view) return;
     const r = cur, tr = trackObj(state.track), svg = $('#map');
     let center = 'M' + P(r.cx, r.cy, 0); for (let i = 2; i < r.N; i += 2) center += 'L' + P(r.cx, r.cy, i); center += 'Z';
-    const wm = Math.min(px(34) / view.s, 0.88 * r.minSep);
+    let center2 = 'M' + P(r.cx, r.cy, 1); for (let i = 3; i < r.N; i += 2) center2 += 'L' + P(r.cx, r.cy, i); center2 += 'Z';
+    const wm = Math.min(px(34) / view.s, 0.85 * r.minSep);
     K = state.wide === 'wide' ? Math.max(1, Math.min(6, wm / tr.width)) : 1;
     const w = state.wide === 'wide' ? Math.max(tr.width * view.s * K, px(12)) : Math.max(tr.width * view.s, px(11));
     if (!DX || DX.length !== r.N) { DX = new Float64Array(r.N); DY = new Float64Array(r.N); }
     for (let i = 0; i < r.N; i++) { DX[i] = r.cx[i] + r.nx[i] * r.d[i] * K; DY[i] = r.cy[i] + r.ny[i] * r.d[i] * K; }
     if (cmp) { if (!CDX || CDX.length !== cmp.N) { CDX = new Float64Array(cmp.N); CDY = new Float64Array(cmp.N); } for (let i = 0; i < cmp.N; i++) { CDX[i] = cmp.cx[i] + r.nx[i] * cmp.d[i] * K; CDY[i] = cmp.cy[i] + r.ny[i] * cmp.d[i] * K; } }
-    let s = '<path d="' + center + '" fill="none" stroke="var(--kerb)" stroke-width="' + (w + px(5)).toFixed(1) + '" stroke-linejoin="round"/>';
-    s += '<path d="' + center + '" fill="none" stroke="var(--asfalto)" stroke-width="' + w.toFixed(1) + '" stroke-linejoin="round"/>';
+    let s = '<path d="' + center + '" fill="none" stroke="var(--kerb)" stroke-width="' + (w + px(9)).toFixed(1) + '" stroke-linejoin="round"/>';
+    s += '<path d="' + center + '" fill="none" stroke="var(--asfalto)" stroke-width="' + (w + px(4)).toFixed(1) + '" stroke-linejoin="round"/>';
+    s += '<path d="' + center2 + '" fill="none" stroke="var(--asfalto)" stroke-width="' + (w + px(4)).toFixed(1) + '" stroke-linejoin="round"/>';
     if (cmp) { let g = 'M' + P(CDX, CDY, 0); for (let i = 1; i < cmp.N; i += 2) g += 'L' + P(CDX, CDY, i); s += '<path d="' + g + 'Z" fill="none" stroke="var(--ghost)" stroke-width="' + px(2).toFixed(1) + '" stroke-dasharray="' + px(7).toFixed(1) + ' ' + px(6).toFixed(1) + '" stroke-linejoin="round"/>'; }
     const col = colorFn(), LN = ' fill="none" stroke-width="' + px(4.5).toFixed(1) + '" stroke-linecap="round" stroke-linejoin="round" ';
     let rc = null, d = '';
@@ -1056,7 +1194,7 @@ tel[['Distance','Speed','nGear','Throttle','Brake']].to_csv('monza_pole.csv', in
       const lab = (i, txt, color, k, side) => { const q = normal(i), o = out * (side || 1) * px(34 + (k || 0)) / view.s, x = MX(DX[i] + q[0] * o), y = MY(DY[i] + q[1] * o); return '<circle cx="' + MX(DX[i]).toFixed(1) + '" cy="' + MY(DY[i]).toFixed(1) + '" r="' + px(6).toFixed(1) + '" fill="' + color + '" stroke="var(--stage)" stroke-width="' + px(2).toFixed(1) + '"/><text x="' + x.toFixed(1) + '" y="' + y.toFixed(1) + '" text-anchor="middle" style="' + HALO + 'font-size:' + px(13).toFixed(1) + 'px;fill:var(--ink);font-weight:500">' + txt + '</text>'; };
       if (c.iBrake != null) s += lab(c.iBrake, 'Frena · ' + f0(c.vEntry) + ' km/h', 'var(--brake)');
       s += lab(c.iApex, 'Corda · ' + f0(c.vApex) + ' km/h · ' + c.gearApex + 'ª', 'var(--accent)', 0, -1);
-      if (c.gasDist > 30) s += lab(c.iGas, 'Gas · ' + f0(r.v[c.iGas]) + ' km/h', 'var(--throttle)');
+      if (c.gasDist > 30) s += lab(c.iGas, 'Gas pieno · ' + f0(r.v[c.iGas]) + ' km/h', 'var(--throttle)');
     }
     { const q = normal(0), L = px(13) / view.s; s += '<line x1="' + MX(DX[0] - q[0] * L).toFixed(1) + '" y1="' + MY(DY[0] - q[1] * L).toFixed(1) + '" x2="' + MX(DX[0] + q[0] * L).toFixed(1) + '" y2="' + MY(DY[0] + q[1] * L).toFixed(1) + '" stroke="var(--ink)" stroke-width="' + px(5).toFixed(1) + '"/><text x="' + (MX(DX[0]) + px(10)).toFixed(1) + '" y="' + (MY(DY[0]) - px(10)).toFixed(1) + '" style="font-size:' + px(12).toFixed(1) + 'px;fill:var(--ink)">S/F</text>'; }
     s += '<g id="dots"><circle id="gdot" r="' + px(8) + '" fill="var(--stage)" stroke="var(--ghost)" stroke-width="' + px(3) + '" visibility="hidden"/><circle id="mdot" r="' + px(9) + '" fill="var(--accent)" stroke="var(--bg)" stroke-width="' + px(3) + '"/></g>';
@@ -1147,26 +1285,39 @@ tel[['Distance','Speed','nGear','Throttle','Brake']].to_csv('monza_pole.csv', in
   function wireMap() {
     const svg = $('#map'), tip = $('#tip'), stage = $('#stage');
     const showTip = (i, ev) => { const b = stage.getBoundingClientRect(); tip.hidden = false; tip.style.left = (ev.clientX - b.left) + 'px'; tip.style.top = (ev.clientY - b.top) + 'px'; tip.textContent = f0(cur.v[i]) + ' km/h · ' + cur.gear[i] + 'ª · ' + f0(cur.s[i]) + ' m'; };
+    const ptrs = new Map(); let pinch = null;
+    const ptr2 = () => { const a = [...ptrs.values()]; return { d: Math.hypot(a[0].x - a[1].x, a[0].y - a[1].y) || 1, x: (a[0].x + a[1].x) / 2, y: (a[0].y + a[1].y) / 2 }; };
     svg.addEventListener('pointerdown', ev => {
+      ptrs.set(ev.pointerId, { x: ev.clientX, y: ev.clientY });
+      if (ptrs.size === 2) { dragging = false; panning = null; const q = ptr2(); pinch = { d: q.d, x: q.x, y: q.y }; try { svg.setPointerCapture(ev.pointerId); } catch (e) {} return; }
       const g = ev.target.closest && ev.target.closest('[data-c]'); if (g) { selectCorner(+g.getAttribute('data-c')); return; }
       const n = nearest(ev), pxd = n.px;
       if (pxd < 40) { dragging = true; svg.setPointerCapture(ev.pointerId); state.range = null; state.t = cur.t[n.i]; state.hover = null; draw(); }
       else { panning = { x: ev.clientX, y: ev.clientY, cx: view.cx, cy: view.cy }; svg.setPointerCapture(ev.pointerId); }
     });
     svg.addEventListener('pointermove', ev => {
+      if (ptrs.has(ev.pointerId)) ptrs.set(ev.pointerId, { x: ev.clientX, y: ev.clientY });
+      if (pinch && ptrs.size >= 2) {
+        const q = ptr2(), b = svg.getBoundingClientRect();
+        zoomAt(q.d / pinch.d, (q.x - b.left) / b.width * VW, (q.y - b.top) / b.height * VH);
+        view = { s: view.s, cx: view.cx - (q.x - pinch.x) / b.width * VW / view.s, cy: view.cy + (q.y - pinch.y) / b.height * VH / view.s }; renderMap(); updateDots();
+        pinch = { d: q.d, x: q.x, y: q.y }; return;
+      }
       const n = nearest(ev), pxd = n.px;
       if (panning) { const b = svg.getBoundingClientRect(); view = { cx: panning.cx - (ev.clientX - panning.x) / b.width * VW / view.s, cy: panning.cy + (ev.clientY - panning.y) / b.height * VH / view.s, s: view.s }; setFree(); renderMap(); updateDots(); return; }
       if (dragging) { state.t = cur.t[n.i]; draw(); showTip(n.i, ev); return; }
       if (pxd < 34) { state.hover = n.i; showTip(n.i, ev); } else { state.hover = null; tip.hidden = true; }
       draw();
     });
-    const end = () => { dragging = false; panning = null; };
+    const end = ev => { ptrs.delete(ev.pointerId); if (ptrs.size < 2) pinch = null; dragging = false; panning = null; };
     svg.addEventListener('pointerup', end); svg.addEventListener('pointercancel', end);
+    ['gesturestart', 'gesturechange'].forEach(n => svg.addEventListener(n, e => e.preventDefault()));
+    svg.addEventListener('touchmove', e => e.preventDefault(), { passive: false });
     svg.addEventListener('pointerleave', () => { if (dragging) return; state.hover = null; tip.hidden = true; draw(); });
     svg.addEventListener('wheel', ev => {
-      if (!(ev.ctrlKey || ev.metaKey)) return; ev.preventDefault();
+      ev.preventDefault();
       const b = svg.getBoundingClientRect(), ux = (ev.clientX - b.left) / b.width * VW, uy = (ev.clientY - b.top) / b.height * VH;
-      zoomAt(Math.exp(-ev.deltaY * 0.01), ux, uy);
+      zoomAt(Math.exp(-ev.deltaY * (ev.ctrlKey ? 0.01 : 0.0025)), ux, uy);
     }, { passive: false });
     $('#ticks').addEventListener('click', e => { const b = e.target.closest('button'); if (b) selectCorner(+b.getAttribute('data-c'), true); });
   }
@@ -1203,7 +1354,7 @@ tel[['Distance','Speed','nGear','Throttle','Brake']].to_csv('monza_pole.csv', in
   function sideText(c) { const ins = (c.dir === 'R' ? -c.side : c.side), p = Math.round(Math.abs(ins) * 100); return Math.abs(ins) < 0.35 ? 'Centro pista' : ins > 0 ? 'Interna, ' + p + '% della larghezza' : 'Esterna, ' + p + '% della larghezza'; }
   function timeline(c) {
     const r = cur, a = c.i0, b = Math.min(r.N - 1, c.iGas + 8), W = 720, H = 54, n = b - a || 1; let rects = '', lab = '', lastG = -1, lastX = -99;
-    for (let i = a; i < b; i++) { const col = r.brake[i] > 4 ? 'var(--brake)' : r.thr[i] >= 90 ? 'var(--throttle)' : 'var(--real)', x = (i - a) / n * W; rects += '<rect x="' + x.toFixed(1) + '" y="22" width="' + (W / n + .6).toFixed(2) + '" height="12" fill="' + col + '"/>'; }
+    for (let i = a; i < b; i++) { const col = r.brake[i] > 4 ? 'var(--brake)' : r.thr[i] >= 97 ? 'var(--throttle)' : r.thr[i] > 8 ? 'var(--throttle2)' : 'var(--real)', x = (i - a) / n * W; rects += '<rect x="' + x.toFixed(1) + '" y="22" width="' + (W / n + .6).toFixed(2) + '" height="12" fill="' + col + '"/>'; }
     for (let i = a; i <= b; i++) if (r.gear[i] !== lastG) { const x = (i - a) / n * W; lastG = r.gear[i]; if (x - lastX > 26) { lab += '<text x="' + Math.max(8, x).toFixed(1) + '" y="14" text-anchor="middle">' + lastG + 'ª</text><line x1="' + x.toFixed(1) + '" x2="' + x.toFixed(1) + '" y1="17" y2="38" stroke="var(--ink2)" stroke-width=".8"/>'; lastX = x; } }
     const ax = (c.iApex - a) / n * W;
     return '<svg class="tl-svg" viewBox="0 0 ' + W + ' ' + H + '" preserveAspectRatio="none" role="img" aria-label="Sequenza: frenata, marce, corda, gas">' + rects + lab + '<path d="M' + (ax - 5) + ' 52L' + ax + ' 42L' + (ax + 5) + ' 52Z" fill="var(--ink)"/></svg>';
@@ -1219,7 +1370,7 @@ tel[['Distance','Speed','nGear','Throttle','Brake']].to_csv('monza_pole.csv', in
       '<div class="steps"><div class="step b"><b>' + (c.brakeStart == null ? 'Solo rilascio' : f0(c.brakeDist) + ' m') + '</b><span>' + (c.brakeStart == null ? 'Alza il piede, nessuna frenata vera' : 'di frenata prima della corda, da ' + f0(c.vEntry) + ' km/h. Si inizia ' + boardText(c.brakeDist) + ' (freno al ' + f0(c.brakePeak) + '%)') + '</span></div>' +
       '<div class="step m"><b>' + c.gears.map(g => g + 'ª').join(' → ') + '</b><span>marce dalla frenata alla ripartenza</span></div>' +
       '<div class="step a"><b>' + f0(c.vApex) + ' km/h</b><span>in corda, ' + c.latG.toFixed(1) + ' g laterali</span></div>' +
-      '<div class="step g"><b>' + (c.gasDist < 15 ? 'Subito' : f0(c.gasDist) + ' m') + '</b><span>' + (c.gasDist < 15 ? 'gas pieno già in corda' : 'dopo la corda si riapre il gas') + ', uscita a ' + f0(c.vExit) + ' km/h</span></div></div>';
+      '<div class="step g"><b>' + (c.gasDist < 15 ? 'Subito' : f0(c.gasDist) + ' m') + '</b><span>' + (c.gasDist < 15 ? 'gas pieno già in corda' : 'dalla corda il gas si apre in modo progressivo, pieno dopo') + ', uscita a ' + f0(c.vExit) + ' km/h</span></div></div>';
     $('#d-replay').addEventListener('click', () => replayCorner(n));
     $('#d-prev').addEventListener('click', () => stepCorner(-1)); $('#d-next').addEventListener('click', () => stepCorner(1)); $('#d-close').addEventListener('click', () => { state.sel = null; state.range = null; afterSel(); });
   }
@@ -1231,7 +1382,7 @@ tel[['Distance','Speed','nGear','Throttle','Brake']].to_csv('monza_pole.csv', in
     if (state.sel != null) { const card = document.querySelector('.card[data-c="' + n + '"]'); if (card) { const s = $('#strip'); s.scrollTo({ left: card.offsetLeft - 12, behavior: reduce ? 'auto' : 'smooth' }); } }
   }
   function stepCorner(d) { if (!cur.corners.length) return; const n = state.sel == null ? 0 : (state.sel + d + cur.corners.length) % cur.corners.length; selectCorner(n, true); }
-  function replayCorner(n) { const c = cur.corners[n], t0 = cur.t[Math.max(0, c.i0 - 25)], t1 = cur.t[Math.min(cur.N - 1, c.iGas + 8)]; state.t = t0; state.range = [t0, t1]; state.hover = null; play(true); }
+  function replayCorner(n) { const c = cur.corners[n], t0 = cur.t[Math.max(0, c.i0 - 25)], t1 = cur.t[Math.min(cur.N - 1, c.iGas + 8)]; state.t = t0; state.range = [t0, t1]; state.hover = null; setTab("mappa"); play(true); }
 
   /* ---------- grafici ---------- */
   function renderCharts() {
@@ -1269,6 +1420,85 @@ tel[['Distance','Speed','nGear','Throttle','Brake']].to_csv('monza_pole.csv', in
   }
   function moveChartLine(i) { const l = $('#cline'); if (!l || !chartGeom) return; const x = chartGeom.xs(i).toFixed(1); l.setAttribute('x1', x); l.setAttribute('x2', x); l.setAttribute('visibility', 'visible'); }
 
+  /* ---------- gomme ---------- */
+  const TCOL = { soft: '#E5383B', medium: '#F2B90F', hard: '#8E9A9F', inter: '#2FA05A', wet: '#2F7DE1' };
+  const TDESC = { soft: 'più grip, dura poco', medium: 'compromesso', hard: 'meno grip, dura molto', inter: 'fondo umido', wet: 'fondo bagnato' };
+  const grids = {}, MUS = [0.2, 0.28, 0.38, 0.5, 0.62, 0.74, 0.86, 0.96, 1.04, 1.12, 1.22];
+  function refreshTyreSelect() {
+    const ch = E.CHAMPS[state.champ];
+    if (state.tyre !== 'auto' && ch.tyres.indexOf(state.tyre) < 0) state.tyre = 'auto';
+    const rec = E.pickTyre(ch, state.weather);
+    $('#sel-tyre').innerHTML = '<option value="auto"' + (state.tyre === 'auto' ? ' selected' : '') + '>Consigliata (' + E.TYRES[rec].name.toLowerCase() + ')</option>' + ch.tyres.map(id => '<option value="' + id + '"' + (state.tyre === id ? ' selected' : '') + '>' + E.TYRES[id].name + '</option>').join('');
+    $('#v-laps').textContent = state.laps ? state.laps + ' giri' : 'nuove';
+  }
+  function gridKey() { return [state.track, state.champ, state.weather, state.aero, state.temp].join('|'); }
+  const gridWaiters = {};
+  function ensureGrid(cb) {
+    const key = gridKey(), g = grids[key];
+    if (g && g.done) { cb(g); return; }
+    (gridWaiters[key] = gridWaiters[key] || []).push(cb);
+    if (g) return;
+    const ng = grids[key] = { mus: MUS, t: [], done: false }, track = trackObj(state.track), champ = E.CHAMPS[state.champ], wx = E.WEATHER[state.weather], aero = E.AERO[state.aero], temp = state.temp, cl = centerline(state.track);
+    let k = 0;
+    const step = () => {
+      ng.t.push(E.analyze({ track, champ, weather: wx, aero, temp, centerline: cl, muFixed: MUS[k] }).time); k++;
+      if (k < MUS.length) setTimeout(step, 0); else { ng.done = true; (gridWaiters[key] || []).forEach(f => f(ng)); gridWaiters[key] = []; }
+    };
+    setTimeout(step, 0);
+  }
+  function timeAtMu(g, m) { const x = Math.log(m), xs = g.mus.map(Math.log); let i = 0; while (i < xs.length - 2 && x > xs[i + 1]) i++; const u = (x - xs[i]) / (xs[i + 1] - xs[i]); return g.t[i] + u * (g.t[i + 1] - g.t[i]); }
+  function renderTyres() {
+    const r = cur, tf = r.tyre, ch = E.CHAMPS[state.champ], rec = E.pickTyre(ch, state.weather), wx = E.WEATHER[state.weather];
+    const fx = (label, v, txt, bad) => '<div class="fx' + (bad ? ' bad' : '') + '"><div class="fx-h"><span>' + label + '</span><b class="mono">' + Math.round(v * 100) + '%</b></div><div class="fx-b"><i style="width:' + Math.max(2, Math.min(100, v * 100)) + '%"></i></div><div class="fx-t">' + txt + '</div></div>';
+    let surfTxt;
+    if (tf.surf >= 0.97) surfTxt = 'Gomma adatta al fondo: ' + wx.name.toLowerCase() + '.';
+    else if (tf.type === 'slick') surfTxt = 'Le slick su fondo ' + wx.name.toLowerCase() + ' aderiscono poco e scivolano sull\u2019acqua.';
+    else if (tf.type === 'inter' && state.weather === 'dry') surfTxt = 'Le intermedie su asciutto si surriscaldano e perdono aderenza.';
+    else if (tf.type === 'wet' && (state.weather === 'dry' || state.weather === 'damp')) surfTxt = 'Le gomme da pioggia su fondo poco bagnato si surriscaldano e si consumano in fretta.';
+    else surfTxt = 'Con questa quantità d\u2019acqua la gomma lavora al limite: meno aderenza.';
+    const hot = tf.tTrack > tf.topt + tf.half, cold = tf.tTrack < tf.topt - tf.half;
+    const tempTxt = 'Pista circa ' + Math.round(tf.tTrack) + ' °C, finestra ideale ' + (tf.topt - tf.half) + '\u2013' + (tf.topt + tf.half) + ' °C.' + (hot ? ' Troppo caldo: la gomma slitta e si consuma.' : cold ? ' Troppo freddo: la gomma non va in temperatura.' : ' Dentro la finestra.');
+    const wearTxt = (tf.laps === 0 ? 'Gomme nuove.' : tf.laps + ' giri su circa ' + tf.life + ' di vita.') + (tf.laps > tf.life ? ' Oltre il limite: il calo accelera.' : '');
+    $('#tfx').innerHTML = fx('Fondo', tf.surf, surfTxt, tf.surf < 0.9) + fx('Temperatura', tf.temp, tempTxt, tf.temp < 0.97) + fx('Usura', tf.wear, wearTxt, tf.wear < 0.93) + '<div class="ftot">Aderenza totale <b>' + (tf.total * 100).toFixed(0) + '%</b> del massimo della mescola, <b>' + r.muEff.toFixed(2) + '</b> con questa pista e auto</div>';
+    $('#mapsum').innerHTML = '<span>' + esc(E.TRACKS[state.track].name) + ' · ' + esc(ch.name) + ' · ' + esc(wx.name) + ' · ' + esc(tf.name) + (tf.laps ? ' (' + tf.laps + ' giri)' : '') + '</span><small>Modifica ›</small>';
+    $('#tyre-note').textContent = 'Modello indicativo: le mescole reali cambiano per campionato e per gara.';
+    // carte (subito con segnaposto, poi i tempi)
+    const cards = html => { $('#tcards').innerHTML = html; };
+    const opts = ch.tyres.map(id => ({ id, f: E.tyreFactors(ch, id, state.weather, state.temp, state.laps) }));
+    const base = o => '<button type="button" class="tcard' + ((state.tyre === 'auto' ? rec : state.tyre) === o.id ? ' sel' : '') + '" data-t="' + o.id + '"><span class="ring" style="--c:' + TCOL[o.id] + '"></span><span class="tn">' + E.TYRES[o.id].name + (o.id === rec ? ' <small>consigliata ora</small>' : '<small>' + TDESC[o.id] + '</small>') + '</span><span class="td">' + (o.d == null ? '\u2026' : (o.d === 0 ? 'migliore' : '+' + o.d.toFixed(1) + ' s')) + '</span></button>';
+    cards(opts.map(base).join(''));
+    const key = gridKey();
+    ensureGrid(g => {
+      if (key !== gridKey()) return;
+      const ts = opts.map(o => timeAtMu(g, o.f.total)), best = Math.min.apply(null, ts);
+      opts.forEach((o, i) => { o.d = ts[i] - best; if (o.d < 0.05) o.d = 0; });
+      cards(opts.map(base).join(''));
+      drawTyreChart(g);
+    });
+    $('#tchart').innerHTML = '<span class="note">Calcolo\u2026</span>';
+  }
+  function drawTyreChart(g) {
+    const ch = E.CHAMPS[state.champ], tf = cur.tyre, group = (tf.type === 'slick' ? ['soft', 'medium', 'hard'] : ['inter', 'wet']).filter(id => ch.tyres.indexOf(id) >= 0);
+    const L = 40, lines = group.map(id => { const pts = []; for (let n = 0; n <= L; n++) pts.push(timeAtMu(g, E.tyreFactors(ch, id, state.weather, state.temp, n).total)); return { id, pts }; });
+    let lo = 1e9, hi = -1e9; lines.forEach(l => l.pts.forEach(v => { lo = Math.min(lo, v); hi = Math.max(hi, v); }));
+    const span = Math.max(1, hi - lo), step = span > 30 ? 10 : span > 12 ? 5 : span > 6 ? 2 : 1, top = Math.ceil(span / step) * step;
+    const W = 460, H = 220, ml = 40, mr = 12, mt = 12, mb = 30, pw = W - ml - mr, ph = H - mt - mb;
+    const X = n => ml + n / L * pw, Y = v => mt + ph - (v - lo) / top * ph;
+    let s = '';
+    for (let v = 0; v <= top + 1e-9; v += step) s += '<line x1="' + ml + '" x2="' + (W - mr) + '" y1="' + Y(lo + v).toFixed(1) + '" y2="' + Y(lo + v).toFixed(1) + '" stroke="var(--line)"/><text x="' + (ml - 6) + '" y="' + (Y(lo + v) + 3.5).toFixed(1) + '" text-anchor="end">+' + v + ' s</text>';
+    for (let n = 0; n <= L; n += 10) s += '<text x="' + X(n).toFixed(1) + '" y="' + (H - 12) + '" text-anchor="middle">' + n + '</text>';
+    s += '<text x="' + (ml + pw / 2) + '" y="' + (H - 1) + '" text-anchor="middle" style="font-size:10px">giri sulle gomme</text>';
+    lines.forEach(l => {
+      const sel = l.id === tf.id; let d = ''; l.pts.forEach((v, n) => { d += (n ? 'L' : 'M') + X(n).toFixed(1) + ' ' + Y(v).toFixed(1); });
+      s += '<path d="' + d + '" fill="none" stroke="' + TCOL[l.id] + '" stroke-width="' + (sel ? 3 : 1.8) + '" opacity="' + (sel ? 1 : .8) + '" stroke-linejoin="round"/>';
+    });
+    const xm = X(state.laps), sel = lines.find(l => l.id === tf.id);
+    s += '<line x1="' + xm.toFixed(1) + '" x2="' + xm.toFixed(1) + '" y1="' + mt + '" y2="' + (mt + ph) + '" stroke="var(--ink)" stroke-dasharray="3 3"/>';
+    if (sel) s += '<circle cx="' + xm.toFixed(1) + '" cy="' + Y(sel.pts[state.laps]).toFixed(1) + '" r="5" fill="' + TCOL[sel.id] + '" stroke="var(--bg)" stroke-width="2"/>';
+    $('#tchart').innerHTML = '<svg viewBox="0 0 ' + W + ' ' + H + '" role="img" aria-label="Tempo sul giro al crescere dei giri sulle gomme">' + s + '</svg><div class="lg">' + lines.map(l => '<span><i style="background:' + TCOL[l.id] + '"></i>' + E.TYRES[l.id].name + '</span>').join('') + '<span>Linea tratteggiata: giri attuali</span></div>';
+  }
+  $('#tcards').addEventListener('click', e => { const b = e.target.closest('.tcard'); if (!b) return; state.tyre = b.getAttribute('data-t'); update(); });
+
   /* ---------- avvio ---------- */
   buildControls(); wireImports(); wireMap(); syncPlay();
   $('#strip').addEventListener('click', e => { const c = e.target.closest('.card'); if (c) selectCorner(+c.getAttribute('data-c')); });
@@ -1278,10 +1508,25 @@ tel[['Distance','Speed','nGear','Throttle','Brake']].to_csv('monza_pole.csv', in
   const ready = (document.fonts && document.fonts.ready ? Promise.race([document.fonts.ready, new Promise(r => setTimeout(r, 2500))]) : Promise.resolve());
   ready.then(() => {
     const wait = Math.max(0, 1400 - (performance.now() - t0));
-    setTimeout(() => { sp.classList.add('hide'); setTimeout(() => { sp.remove(); }, 700); if (!reduce) play(true); }, reduce ? 0 : wait);
+    setTimeout(() => { sp.classList.add('hide'); setTimeout(() => { sp.remove(); }, 700); }, reduce ? 0 : wait);
   });
   let rt = null;
-  new ResizeObserver(() => { clearTimeout(rt); rt = setTimeout(() => { if (!cur) return; const w = $('#stage').clientWidth, h = $('#stage').clientHeight; if (Math.abs(VW / U - w) > 2 || Math.abs(VH / U - h) > 2) { sizeStage(); view = targetView(); renderMap(); renderTicks(); draw(); } if (Math.abs($('#charts').clientWidth - 12 - chartGeom.W) > 2) { renderCharts(); draw(); } }, 80); }).observe(document.body);
+  function relayout() { if (!cur) return; const w = $('#stage').clientWidth, h = $('#stage').clientHeight; if (w && (Math.abs(VW / U - w) > 2 || Math.abs(VH / U - h) > 2)) { sizeStage(); view = targetView(); renderMap(); renderTicks(); draw(); } const cw = $('#charts').clientWidth; if (cw && (!chartGeom || Math.abs(cw - 12 - chartGeom.W) > 2)) { renderCharts(); draw(); } }
+  new ResizeObserver(() => { clearTimeout(rt); rt = setTimeout(relayout, 80); }).observe(document.body);
+  /* schede */
+  const TABS = ['imposta', 'mappa', 'gomme', 'curve', 'dati'];
+  function setTab(id, noHash) {
+    if (TABS.indexOf(id) < 0) id = 'mappa';
+    document.querySelectorAll('.tab').forEach(s => { s.hidden = s.getAttribute('data-tab') !== id; });
+    document.querySelectorAll('#tabbar button').forEach(b => b.setAttribute('aria-selected', String(b.getAttribute('data-go') === id)));
+    if (!noHash) { try { history.replaceState(null, '', '#' + id); } catch (e) { try { location.hash = id; } catch (e2) {} } }
+    window.scrollTo(0, 0);
+    relayout(); setTimeout(relayout, 60);
+  }
+  document.querySelectorAll('#tabbar button').forEach(b => b.addEventListener('click', () => setTab(b.getAttribute('data-go'))));
+  $('#mapsum').addEventListener('click', () => setTab('imposta'));
+  window.addEventListener('hashchange', () => setTab(location.hash.slice(1), true));
+  setTab(location.hash.slice(1), true);
 })();
 </script>
 
