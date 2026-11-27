@@ -158,6 +158,8 @@ pre { background: var(--bg); border: 1px solid var(--line); border-radius: 4px; 
 
 /* gomme */
 .tyrepanel { padding-bottom: 14px; }
+.tyrepanel .sec { padding: 14px 16px 6px; display: block; }
+.tyrepanel .sec h2 { margin: 0 0 4px; }
 .tyre-grid { display: grid; gap: 16px 22px; padding: 4px 16px 0; grid-template-columns: minmax(0, 1fr); align-items: start; }
 @media (min-width: 1000px) { .tyre-grid { grid-template-columns: minmax(220px, 3fr) minmax(220px, 3fr) minmax(300px, 5fr); } }
 .tcards { display: flex; flex-direction: column; gap: 6px; }
@@ -187,7 +189,7 @@ pre { background: var(--bg); border: 1px solid var(--line); border-radius: 4px; 
 .sp-in { display: flex; flex-direction: column; align-items: center; gap: 14px; padding: 24px; text-align: center; }
 .sp-in svg { width: min(78vw, 360px); height: auto; overflow: visible; }
 .sp-asph { fill: none; stroke: var(--asfalto); stroke-width: 15; stroke-linejoin: round; stroke-linecap: round; }
-.sp-line { fill: none; stroke: var(--accent); stroke-width: 3.2; stroke-linejoin: round; stroke-linecap: round; stroke-dasharray: 100; stroke-dashoffset: 100; animation: sp-draw 2.2s ease-in-out infinite; }
+.sp-line { fill: none; stroke: #fff; stroke-width: 26; stroke-linejoin: round; stroke-linecap: butt; stroke-dasharray: 100; stroke-dashoffset: 100; animation: sp-draw 2.2s ease-in-out infinite; }
 @keyframes sp-draw { 0% { stroke-dashoffset: 100; } 70%, 100% { stroke-dashoffset: 0; } }
 .sp-title { font-family: var(--f-display); text-transform: uppercase; letter-spacing: .14em; font-weight: 600; font-size: 2.3rem; line-height: 1; margin: 6px 0 0; color: var(--ink); }
 .sp-sub { color: var(--ink2); font-size: 13px; margin: 0; }
@@ -196,7 +198,7 @@ pre { background: var(--bg); border: 1px solid var(--line); border-radius: 4px; 
 @keyframes sp-bar { 0% { transform: translateX(-110%); } 100% { transform: translateX(270%); } }
 @media (prefers-reduced-motion: reduce) { .sp-line { animation: none; stroke-dashoffset: 0; } .sp-bar i { animation: none; width: 100%; } }
 @media (max-width: 720px) {
-  .stage { height: clamp(340px, 56vh, 520px); height: clamp(340px, calc(100dvh - 330px), 680px); }
+  .stage { height: clamp(340px, 56vh, 520px); height: clamp(320px, calc(100dvh - 500px), 600px); }
   .g-speed b { font-size: 1.9rem; } .g-gear b { width: 36px; height: 42px; font-size: 1.5rem; } .vbar { height: 44px; } .g-gg { display: none; }
   .bl { gap: 10px; padding: 6px 8px; } .laptime { font-size: 1.3rem; } .legend { display: none; }
   .banner { top: auto; bottom: 86px; max-width: calc(100% - 20px); }
@@ -221,7 +223,8 @@ pre { background: var(--bg); border: 1px solid var(--line); border-radius: 4px; 
   <div class="sp-in">
     <svg viewBox="0 0 360 200" aria-hidden="true">
       <path id="sp-path" class="sp-asph" d="M52 150 C28 120 40 70 86 62 C130 54 150 86 190 78 C230 70 236 28 282 30 C330 32 338 96 306 128 C280 152 232 142 196 158 C150 176 84 178 52 150 Z"/>
-      <path class="sp-line" pathLength="100" d="M52 150 C28 120 40 70 86 62 C130 54 150 86 190 78 C230 70 236 28 282 30 C330 32 338 96 306 128 C280 152 232 142 196 158 C150 176 84 178 52 150 Z"/>
+      <defs><mask id="sp-mask" maskUnits="userSpaceOnUse" x="0" y="0" width="360" height="200"><path class="sp-line" pathLength="100" d="M52 150 C28 120 40 70 86 62 C130 54 150 86 190 78 C230 70 236 28 282 30 C330 32 338 96 306 128 C280 152 232 142 196 158 C150 176 84 178 52 150 Z"/></mask></defs>
+      <g mask="url(#sp-mask)"><path d="M52 150 C28 120 40 70 86 62" fill="none" stroke="#2BB5C9" stroke-width="4.6" stroke-linecap="round"/><path d="M86 62 C130 54 150 86 190 78" fill="none" stroke="#6BD27A" stroke-width="4.6" stroke-linecap="round"/><path d="M190 78 C230 70 236 28 282 30" fill="none" stroke="#F2A03A" stroke-width="4.6" stroke-linecap="round"/><path d="M282 30 C330 32 338 96 306 128" fill="none" stroke="#3FC7A0" stroke-width="4.6" stroke-linecap="round"/><path d="M306 128 C280 152 232 142 196 158" fill="none" stroke="#3B6FE0" stroke-width="4.6" stroke-linecap="round"/><path d="M196 158 C150 176 84 178 52 150" fill="none" stroke="#B7D84A" stroke-width="4.6" stroke-linecap="round"/><line x1="265.3" y1="22.2" x2="268.8" y2="39.9" stroke="var(--brake)" stroke-width="4"/><line x1="279.8" y1="150.8" x2="275.4" y2="133.3" stroke="var(--brake)" stroke-width="4"/><line x1="33.9" y1="134.9" x2="51.1" y2="129.5" stroke="var(--brake)" stroke-width="4"/><circle cx="47.2" cy="87.8" r="4.6" fill="var(--bg)" stroke="var(--ink)" stroke-width="2"/><circle cx="322.5" cy="99.5" r="4.6" fill="var(--bg)" stroke="var(--ink)" stroke-width="2"/><circle cx="212.9" cy="152.4" r="4.6" fill="var(--bg)" stroke="var(--ink)" stroke-width="2"/></g>
       <circle r="7" fill="var(--ink)" stroke="var(--bg)" stroke-width="2.5"><animateMotion dur="2.2s" repeatCount="indefinite" keyPoints="0;1;1" keyTimes="0;.7;1" calcMode="linear"><mpath href="#sp-path"/></animateMotion></circle>
     </svg>
   </div>
@@ -316,7 +319,7 @@ tel[['Distance','Speed','nGear','Throttle','Brake']].to_csv('monza_pole.csv', in
     <details>
       <summary>Cosa è misurato e cosa è stimato</summary>
       <ul>
-        <li><b>Misurato.</b> Lunghezza ufficiale delle piste e tempi di pole 2026 di Monza (<a target="_blank" rel="noopener" href="https://www.crash.net/f1/results/1103771/1/f1-2026-italian-grand-prix-full-qualifying-result-monza">1:21.786</a>), Spa (<a target="_blank" rel="noopener" href="https://www.motorsport.com/f1/news/f1-belgian-gp-qualifying-report/10839833/">1:44.361</a>), Monaco (<a target="_blank" rel="noopener" href="https://www.crash.net/f1/results/1097307/1/2026-f1-monaco-grand-prix-full-qualifying-results">1:12.051</a>) e Silverstone (<a target="_blank" rel="noopener" href="https://www.crash.net/f1/results/1100236/1/2026-f1-silverstone-full-british-gp-qualifying-results">1:28.111</a>). Lusail (Qatar) non ha ancora una pole 2026: il tempo di riferimento è una stima dalla <a target="_blank" rel="noopener" href="https://www.formula1.com/en/latest/article/piastri-takes-crucial-qatar-grand-prix-pole-ahead-of-norris-and-verstappen.3wFuWKkl0nI0Ohler7CzOt">pole 2025</a> (1:19.387) con il rapporto medio 2026/2025 delle altre piste. Dati tecnici F1 2026 dal <a target="_blank" rel="noopener" href="https://www.formula1.com/en/latest/article/from-smaller-cars-to-a-bigger-budget-cap-12-rule-changes-you-need-to-know-about-in.56uUTFhB0z5j3iZfhC0rGP">regolamento</a>: 768 kg, motore da circa 400 kW più 350 kW elettrici.</li>
+        <li><b>Misurato.</b> Lunghezza ufficiale delle piste e tempi di pole 2026 di Monza (<a target="_blank" rel="noopener" href="https://www.crash.net/f1/results/1103771/1/f1-2026-italian-grand-prix-full-qualifying-result-monza">1:21.786</a>), Spa (<a target="_blank" rel="noopener" href="https://www.motorsport.com/f1/news/f1-belgian-gp-qualifying-report/10839833/">1:44.361</a>), Monaco (<a target="_blank" rel="noopener" href="https://www.crash.net/f1/results/1097307/1/2026-f1-monaco-grand-prix-full-qualifying-results">1:12.051</a>) e Silverstone (<a target="_blank" rel="noopener" href="https://www.crash.net/f1/results/1100236/1/2026-f1-silverstone-full-british-gp-qualifying-results">1:28.111</a>). Monza, Spa, Shanghai e Lusail usano la linea centrale reale del tracciato (dati del progetto <a target="_blank" rel="noopener" href="https://github.com/bacinger/f1-circuits">f1-circuits</a>). Dati tecnici F1 2026 dal <a target="_blank" rel="noopener" href="https://www.formula1.com/en/latest/article/from-smaller-cars-to-a-bigger-budget-cap-12-rule-changes-you-need-to-know-about-in.56uUTFhB0z5j3iZfhC0rGP">regolamento</a>: 768 kg, motore da circa 400 kW più 350 kW elettrici.</li>
         <li><b>Stimato.</b> I tracciati integrati sono schemi costruiti da sequenza e raggio delle curve, chiusi e scalati alla lunghezza ufficiale: la forma non è quella esatta. Le auto sono modelli a punto materiale con downforce, ellisse di aderenza e limite di potenza. Per la F1 aderenza e carico sono tarati sulle quattro pole, con un fattore per pista che assorbe ciò che il modello non vede. WEC, GT3 e F3 hanno parametri indicativi, senza taratura sui tempi.</li>
         <li><b>Non modellato.</b> Dislivelli, dossi, vento, usura gomme, carburante, gestione dell'energia, traffico, regole di BoP aggiornate. Con la pioggia il modello riduce aderenza e larghezza di pista usabile (si evita la gomma depositata), ma non l'acquaplaning né i ruscelli.</li>
       </ul>
@@ -349,62 +352,28 @@ tel[['Distance','Speed','nGear','Throttle','Brake']].to_csv('monza_pole.csv', in
   const R = (r, a, name) => ({ t: 'R', r, a, name: name || null });
   const L = (r, a, name) => ({ t: 'L', r, a, name: name || null });
 
+  const GEO = {
+    shanghai: { x: [0.0,-92.2,-109.0,-129.3,-147.3,-159.6,-176.0,-187.8,-196.8,-203.5,-209.1,-209.7,-209.1,-206.8,-203.0,-195.6,-185.5,-163.0,-142.2,-125.9,-119.2,-114.6,-114.2,-117.5,-124.2,-125.9,-121.9,-112.4,-96.1,-78.2,-68.6,-62.4,-56.8,-51.2,-47.8,-46.6,-49.5,-58.5,-64.7,-83.2,-132.7,-170.9,-202.4,-241.7,-254.0,-259.7,-300.2,-313.1,-324.3,-324.9,-319.9,-309.7,-292.3,-274.3,-259.2,-244.0,-222.6,-204.1,-171.4,-127.6,-113.6,-99.5,-83.8,-65.2,-45.5,-25.3,-1.7,19.1,39.3,59.5,78.7,93.8,110.2,135.4,146.2,157.4,171.4,192.2,211.9,228.8,244.0,257.5,267.0,275.4,317.0,327.2,339.5,351.3,362.0,403.6,409.2,409.2,405.8,304.1,240.6,170.9,161.4,151.8,142.7,132.1,121.9,112.4,100.6,88.2,75.9,61.3,53.9,49.5,47.2,48.3,51.2,56.2,69.7,82.6,100.6,119.8,135.0,153.5,177.6,193.4,209.7,232.1,251.9,465.5,598.7,667.8,728.5,808.9,894.9,899.9,899.4,892.1,880.3,856.1,842.0,826.3,661.7,654.3,640.9,434.5], y: [0.0,-23.1,-24.7,-24.7,-18.9,-13.7,-3.2,7.3,19.3,33.5,47.7,62.8,80.2,93.3,105.9,116.9,126.3,136.2,136.2,130.0,122.6,114.8,103.7,88.1,64.5,54.5,44.5,34.0,27.8,31.5,37.7,48.1,58.7,72.8,88.5,106.4,121.5,138.3,148.8,171.4,224.3,274.1,308.1,352.7,373.7,388.8,507.8,543.5,578.7,587.6,594.9,599.1,595.9,583.9,571.3,555.1,533.1,505.8,448.7,371.6,350.2,333.4,318.1,308.1,300.8,296.7,296.7,300.8,308.1,320.8,336.5,354.3,389.4,442.9,459.1,470.1,478.5,487.5,489.0,487.5,481.7,472.8,464.9,455.5,374.7,363.7,360.0,362.2,366.4,421.4,432.4,442.3,452.3,625.2,728.0,843.3,846.4,843.9,836.0,824.0,811.4,805.1,801.4,803.5,814.5,830.7,843.9,855.9,873.8,890.0,905.7,920.4,938.2,948.2,956.1,960.2,961.7,960.7,954.9,948.2,939.3,918.2,890.4,563.4,362.2,257.3,162.5,42.5,-83.4,-94.4,-104.9,-112.2,-111.2,-99.6,-89.6,-78.2,146.8,150.9,152.0,103.2] },
+    spa: { x: [0.0,-113.4,-114.6,-109.6,-99.1,-87.4,-50.1,40.5,84.1,129.4,170.1,202.3,375.5,387.6,408.5,445.9,462.2,476.0,484.9,490.8,495.8,498.7,503.7,513.4,598.9,653.4,668.5,678.1,689.4,757.8,862.6,886.9,888.2,885.6,877.3,865.1,849.6,840.4,834.1,829.0,829.9,850.8,850.4,847.1,835.8,822.3,583.4,568.3,553.2,537.3,524.3,515.1,511.3,510.4,515.1,523.4,535.6,640.0,651.3,657.6,660.1,658.8,615.6,602.2,571.6,556.6,553.2,545.6,535.6,520.5,503.7,485.3,466.0,403.5,379.6,357.8,335.6,317.6,296.6,283.2,268.6,209.4,156.6,145.3,131.9,113.5,95.0,77.8,60.6,46.0,21.6,5.7,-13.6,-32.9,-50.5,-65.6,-75.2,-87.0,-183.8,-193.4,-205.2,-219.4,-235.4,-249.2,-314.6,-353.1,-362.8,-372.8,-378.7,-382.9,-383.7,-380.8,-374.1,-365.3,-352.3,-329.7,-304.9,-267.2,-204.3,-167.4,-136.0,25.9,49.3,71.5,92.1,109.6,126.0,147.8,165.5,205.7,212.8,217.0,217.8,213.6,189.7,163.8,132.3,124.3,116.8,112.2,109.2,100.0,101.7,107.2,115.5,129.8,144.5,154.5,161.2,162.9,158.7,107.2], y: [0.0,198.1,207.0,214.9,218.6,215.4,196.6,153.1,126.3,92.7,58.7,23.6,-182.9,-194.5,-207.5,-231.6,-247.9,-269.9,-289.9,-312.3,-353.8,-368.5,-382.1,-399.9,-536.7,-623.7,-656.2,-680.3,-719.1,-957.6,-1319.8,-1406.8,-1421.0,-1436.6,-1449.2,-1459.8,-1468.1,-1477.0,-1487.5,-1503.2,-1518.9,-1612.8,-1629.0,-1643.7,-1659.9,-1670.9,-1836.1,-1842.4,-1842.8,-1838.2,-1828.7,-1815.1,-1801.5,-1786.8,-1773.1,-1759.0,-1749.1,-1684.6,-1673.0,-1661.5,-1647.9,-1631.1,-1504.2,-1452.4,-1292.5,-1200.8,-1185.1,-1168.3,-1154.6,-1140.0,-1129.0,-1121.6,-1118.5,-1114.3,-1117.0,-1123.2,-1132.6,-1144.8,-1164.1,-1183.4,-1211.2,-1359.1,-1490.7,-1511.1,-1525.3,-1535.7,-1540.9,-1541.5,-1537.8,-1531.0,-1515.3,-1508.5,-1505.4,-1507.5,-1513.1,-1523.7,-1535.7,-1551.9,-1704.0,-1712.8,-1719.2,-1722.3,-1721.3,-1715.0,-1667.3,-1639.0,-1626.4,-1611.2,-1596.5,-1579.2,-1561.4,-1539.9,-1521.6,-1498.0,-1462.3,-1422.0,-1386.8,-1344.5,-1283.1,-1254.3,-1235.9,-1151.5,-1136.9,-1119.5,-1100.2,-1079.1,-1057.1,-1016.9,-978.1,-888.4,-869.0,-848.1,-821.8,-798.3,-736.9,-669.3,-584.9,-553.5,-516.3,-481.7,-452.3,-316.6,-307.7,-301.3,-299.2,-301.3,-301.3,-299.2,-291.9,-283.5,-272.5,-188.1] },
+    lusail: { x: [0.0,-154.8,-215.5,-219.5,-216.9,-209.2,-197.0,-178.4,-157.0,-136.8,17.7,32.4,51.9,74.3,92.3,102.7,105.2,101.7,103.9,109.4,116.8,127.5,347.8,359.9,378.7,396.8,415.1,429.5,494.9,502.3,505.6,504.9,500.4,490.9,347.8,341.6,341.2,344.5,351.5,361.8,376.1,386.0,399.0,649.0,665.4,685.5,702.5,715.7,723.9,727.1,726.8,722.0,711.7,703.2,683.7,662.0,644.0,628.9,616.8,609.8,602.4,596.2,585.6,574.1,558.8,416.6,404.2,394.7,389.1,386.9,389.4,404.9,431.4,472.2,514.9,558.3,601.6,644.0,690.2,902.6,922.1,944.6,961.8,978.0,1027.3,1031.3,1031.3,1029.1,1018.9,942.4,932.7,918.5,903.7,883.9,639.7,622.3,605.0,590.4,580.0,410.0,396.4,380.9,358.5,341.6,325.0,308.1], y: [0.0,283.3,393.3,413.9,435.2,451.8,463.9,474.9,478.2,474.6,380.8,376.7,376.1,382.6,399.5,418.0,436.7,571.3,589.7,605.5,620.6,633.0,877.2,887.1,892.3,893.8,889.0,880.6,818.1,804.8,786.7,770.9,755.5,741.6,584.3,572.9,560.4,549.4,541.3,534.7,532.8,535.7,541.6,641.7,643.5,640.6,632.9,619.6,602.7,586.0,571.3,557.3,541.1,533.1,517.2,492.3,467.2,440.6,409.3,388.0,350.5,334.5,320.9,312.3,305.5,270.9,263.5,255.1,241.1,227.5,207.0,186.8,160.0,128.9,104.6,89.2,79.9,76.3,80.7,104.3,100.2,89.5,76.3,54.3,-37.4,-53.2,-67.5,-82.5,-101.6,-225.1,-234.3,-240.8,-245.3,-244.5,-195.3,-195.3,-200.4,-210.4,-223.2,-553.9,-569.7,-579.2,-582.9,-581.0,-574.0,-559.3] }
+  };
+
+  const GEO_MONZA = { x: [-0.3,0.7,1.6,2.6,3.6,4.5,5.5,6.5,7.5,8.4,9.4,10.4,11.3,12.3,13.3,14.3,15.3,16.3,17.2,18.2,19.2,20.2,21.2,22.2,23.2,24.2,25.2,26.2,27.2,28.2,29.2,30.2,31.2,32.2,33.2,34.1,35.1,36.0,37.0,37.9,38.8,39.8,40.7,41.6,42.5,43.4,44.2,45.1,46.0,46.9,47.7,48.6,49.5,50.3,51.2,52.0,52.9,53.7,54.6,55.4,56.2,57.1,57.9,58.8,59.6,60.4,61.3,62.1,62.9,63.8,64.6,65.5,66.3,67.2,68.0,68.9,69.7,70.6,71.4,72.3,73.2,74.0,74.9,75.7,76.6,77.4,78.3,79.1,79.9,80.8,81.6,82.4,83.2,85.7,93.6,103.8,113.6,122.7,127.8,127.7,125.4,122.9,120.3,117.7,115.0,112.4,109.8,107.4,105.1,103.1,101.3,99.8,98.7,97.9,97.6,97.6,97.9,98.5,99.2,100.0,100.8,101.6,102.4,103.2,103.8,104.5,105.2,105.9,106.8,107.8,109.1,110.5,112.3,114.4,116.8,119.7,123.0,126.8,131.0,135.3,139.9,144.4,149.2,154.3,159.9,165.9,172.2,178.8,185.6,192.7,199.9,207.4,215.1,223.0,231.0,239.1,247.5,255.9,264.6,273.3,282.2,291.2,300.3,309.6,319.0,328.4,338.0,347.6,357.3,367.0,376.7,386.5,396.3,406.1,416.0,425.9,435.8,445.7,455.6,465.6,475.6,485.5,495.5,505.5,515.4,525.4,535.4,545.3,555.3,565.3,575.2,585.2,595.1,605.1,615.0,625.0,635.0,644.9,654.9,664.9,674.8,684.8,694.8,704.8,714.8,724.8,734.8,744.7,754.7,764.6,774.6,784.6,794.6,804.9,814.8,822.9,828.1,831.2,833.7,838.6,847.1,857.2,867.1,876.9,886.6,896.3,905.9,915.5,925.0,934.5,944.0,953.5,962.9,972.3,981.8,991.2,1000.7,1010.2,1019.6,1029.1,1038.6,1048.1,1057.6,1067.1,1076.6,1086.1,1095.6,1105.1,1114.6,1124.1,1133.7,1143.5,1153.5,1163.5,1173.3,1182.5,1191.2,1199.3,1206.7,1213.3,1218.6,1222.2,1224.3,1225.8,1227.0,1228.2,1229.2,1230.2,1231.1,1232.0,1232.8,1233.7,1234.6,1235.5,1236.5,1237.5,1238.4,1239.4,1240.4,1241.3,1242.3,1243.2,1244.0,1244.9,1245.8,1246.8,1247.8,1247.9,1245.8,1241.2,1234.5,1226.3,1217.4,1208.6,1199.9,1191.3,1182.6,1173.8,1165.1,1156.4,1147.7,1138.9,1130.2,1121.5,1112.7,1104.0,1095.3,1086.6,1077.9,1069.1,1060.4,1051.7,1043.0,1034.3,1025.6,1016.8,1008.1,999.4,990.6,981.9,973.1,964.4,955.7,947.1,938.4,929.9,921.4,913.0,904.6,896.4,888.2,880.2,872.3,864.5,856.9,849.3,841.7,834.3,826.8,819.4,811.9,804.4,796.9,789.4,781.9,774.3,766.8,759.3,751.8,744.3,736.8,729.3,721.7,714.2,706.7,699.2,691.7,684.2,676.7,669.2,661.7,654.2,646.7,639.2,631.6,624.1,616.6,609.1,601.6,594.1,586.6,579.1,571.5,564.0,556.5,549.0,541.5,534.0,526.5,519.0,511.5,504.0,496.4,488.9,481.4,473.9,466.4,458.9,451.4,443.9,436.3,428.8,421.3,413.8,406.4,399.4,395.1,394.4,395.4,396.8,397.9,398.6,398.6,397.9,396.3,393.7,390.3,386.0,380.9,375.1,368.6,361.4,353.6,345.2,337.4,332.1,329.3,327.6,326.1,324.7,323.4,322.1,320.9,319.7,318.6,317.5,316.3,315.1,313.9,312.7,311.5,310.3,309.1,307.9,306.8,305.6,304.5,303.4,302.3,301.2,300.1,299.1,298.0,297.0,296.0,295.0,294.0,293.0,292.0,291.0,290.1,289.1,288.1,287.1,286.1,285.2,284.2,283.2,282.2,281.2,280.2,279.2,278.2,277.2,276.2,275.2,274.2,273.1,272.1,271.1,270.1,269.1,268.1,267.1,266.1,265.1,264.1,263.1,262.1,261.1,260.1,259.1,258.1,257.1,256.1,255.1,254.1,253.1,252.1,251.2,250.2,249.2,248.2,247.2,246.2,245.2,244.2,243.2,242.2,241.2,240.2,239.2,238.3,237.3,236.3,235.3,234.3,233.3,232.3,231.3,230.2,229.1,227.9,226.3,223.7,219.6,214.2,207.7,200.6,192.7,184.2,175.1,165.6,155.7,145.8,136.0,126.2,116.7,107.3,98.3,89.5,81.1,73.1,65.5,58.2,51.4,45.0,39.1,33.5,28.4,23.8,19.5,15.6,12.2,9.1,6.4,4.1,2.2,0.5,-0.9,-2.0,-2.9,-3.6,-4.1,-4.4,-4.6,-4.8,-4.8,-4.8,-4.8,-4.8,-4.9,-5.0,-5.2,-5.4,-5.6,-5.8,-5.9,-5.9,-5.9,-5.8,-5.7,-5.4,-5.1,-4.7,-4.2,-3.5,-2.7,-1.8,-0.8], y: [1.1,11.0,21.0,30.9,40.9,50.8,60.8,70.7,80.7,90.6,100.6,110.5,120.5,130.4,140.4,150.3,160.3,170.2,180.1,190.1,200.0,210.0,219.9,229.9,239.8,249.8,259.7,269.7,279.6,289.6,299.5,309.4,319.4,329.3,339.3,349.2,359.2,369.1,379.1,389.0,399.0,408.9,418.9,428.9,438.8,448.8,458.7,468.7,478.6,488.6,498.5,508.5,518.5,528.4,538.4,548.3,558.3,568.3,578.2,588.2,598.1,608.1,618.1,628.0,638.0,647.9,657.9,667.9,677.8,687.8,697.7,707.7,717.7,727.6,737.6,747.5,757.5,767.5,777.4,787.4,797.3,807.3,817.3,827.2,837.2,847.1,857.1,867.0,877.0,886.9,896.9,906.8,917.0,926.5,930.7,929.5,928.6,932.9,941.2,950.7,960.5,970.3,980.0,989.6,999.3,1008.9,1018.5,1028.2,1037.9,1047.7,1057.5,1067.4,1077.4,1087.4,1097.3,1107.3,1117.3,1127.3,1137.2,1147.2,1157.2,1167.1,1177.1,1187.1,1197.0,1207.0,1216.9,1226.9,1236.9,1246.9,1256.8,1266.7,1276.5,1286.3,1295.9,1305.5,1314.9,1324.1,1333.3,1342.3,1351.2,1360.1,1368.8,1377.4,1385.7,1393.7,1401.4,1409.0,1416.3,1423.3,1430.2,1436.8,1443.2,1449.3,1455.3,1461.1,1466.6,1472.0,1477.0,1481.9,1486.4,1490.7,1494.7,1498.5,1501.9,1505.0,1507.9,1510.6,1513.2,1515.7,1518.0,1520.2,1522.2,1523.9,1525.5,1526.9,1528.2,1529.3,1530.3,1531.2,1532.0,1532.8,1533.6,1534.4,1535.1,1535.9,1536.6,1537.4,1538.2,1539.0,1539.8,1540.6,1541.5,1542.3,1543.2,1544.0,1544.9,1545.7,1546.5,1547.2,1547.9,1548.5,1549.0,1549.6,1550.1,1550.5,1550.9,1551.3,1551.7,1552.1,1552.5,1552.9,1553.4,1554.1,1555.4,1559.5,1567.7,1578.0,1587.6,1595.8,1600.3,1601.5,1602.9,1604.8,1607.0,1609.6,1612.3,1615.2,1618.2,1621.3,1624.5,1627.7,1631.0,1634.3,1637.5,1640.8,1644.0,1647.2,1650.4,1653.5,1656.7,1659.8,1662.9,1666.0,1669.2,1672.4,1675.5,1678.7,1681.7,1684.7,1687.4,1689.3,1690.0,1689.3,1687.2,1683.7,1679.0,1673.2,1666.3,1658.6,1650.1,1640.9,1631.2,1621.3,1611.4,1601.5,1591.5,1581.6,1571.6,1561.7,1551.7,1541.8,1531.8,1521.9,1511.9,1501.9,1492.0,1482.0,1472.1,1462.2,1452.2,1442.3,1432.3,1422.4,1412.4,1402.4,1392.4,1382.5,1372.8,1364.0,1356.7,1351.1,1346.3,1341.5,1336.6,1331.7,1326.8,1321.9,1317.0,1312.1,1307.2,1302.4,1297.5,1292.6,1287.7,1282.9,1278.0,1273.1,1268.2,1263.3,1258.4,1253.5,1248.6,1243.7,1238.8,1234.0,1229.1,1224.2,1219.4,1214.6,1209.7,1204.8,1199.9,1194.9,1189.9,1184.7,1179.5,1174.1,1168.6,1162.9,1157.1,1151.2,1145.0,1138.8,1132.4,1125.9,1119.3,1112.7,1106.0,1099.4,1092.7,1086.1,1079.5,1072.9,1066.3,1059.7,1053.1,1046.5,1040.0,1033.4,1026.8,1020.2,1013.6,1007.0,1000.4,993.8,987.2,980.6,974.0,967.4,960.8,954.2,947.6,941.0,934.4,927.8,921.2,914.6,908.0,901.4,894.8,888.3,881.7,875.1,868.5,861.9,855.3,848.7,842.1,835.5,828.9,822.3,815.7,809.1,802.5,795.9,789.3,782.7,776.1,769.5,763.0,756.4,749.8,743.1,736.4,729.3,720.4,710.5,700.5,690.6,680.7,670.7,660.7,650.8,641.0,631.3,621.9,612.9,604.2,596.1,588.5,581.8,575.6,569.7,563.2,555.2,545.9,535.9,525.9,516.0,506.1,496.1,486.2,476.3,466.4,456.5,446.6,436.6,426.7,416.8,406.9,397.0,387.0,377.1,367.2,357.2,347.3,337.4,327.4,317.5,307.5,297.6,287.7,277.7,267.8,257.8,247.9,237.9,228.0,218.1,208.1,198.2,188.2,178.3,168.3,158.4,148.4,138.5,128.5,118.6,108.6,98.7,88.8,78.8,68.9,58.9,49.0,39.0,29.1,19.1,9.2,-0.8,-10.7,-20.6,-30.6,-40.5,-50.5,-60.4,-70.4,-80.3,-90.3,-100.2,-110.1,-120.1,-130.0,-140.0,-149.9,-159.9,-169.8,-179.8,-189.7,-199.7,-209.6,-219.6,-229.5,-239.4,-249.4,-259.3,-269.3,-279.2,-289.2,-299.1,-309.1,-319.0,-329.0,-338.9,-348.9,-358.8,-368.8,-378.7,-388.6,-398.6,-408.5,-418.3,-427.9,-437.0,-445.5,-453.3,-460.1,-466.1,-471.2,-475.4,-478.8,-480.8,-481.3,-480.4,-478.5,-475.7,-472.1,-467.7,-462.8,-457.4,-451.4,-445.0,-438.2,-430.9,-423.2,-415.2,-406.9,-398.3,-389.5,-380.4,-371.2,-361.8,-352.2,-342.6,-332.9,-323.2,-313.3,-303.4,-293.5,-283.5,-273.6,-263.6,-253.6,-243.6,-233.6,-223.6,-213.6,-203.6,-193.6,-183.6,-173.6,-163.6,-153.6,-143.6,-133.6,-123.7,-113.7,-103.7,-93.7,-83.7,-73.7,-63.7,-53.7,-43.7,-33.8,-23.8,-13.8,-3.9] };
+
   const TRACKS = {
     monza: {
-      id: 'monza', name: 'Monza', country: 'Italia', length: 5793, width: 13, kerb: 0.4, alt: 160,
-      cal: 1.122, segs: [
-        S(720, { flex: true }),
-        R(24, 72, 'Variante del Rettifilo'), S(15, { name: 'Variante del Rettifilo' }), L(24, 68, 'Variante del Rettifilo'),
-        S(190), R(420, 86, 'Curva Grande'),
-        S(320, { flex: true }),
-        L(38, 58, 'Variante della Roggia'), S(18, { name: 'Variante della Roggia' }), R(38, 52, 'Variante della Roggia'),
-        S(320), R(95, 72, 'Lesmo 1'), S(170), R(58, 82, 'Lesmo 2'),
-        S(900, { flex: true }),
-        L(60, 45, 'Variante Ascari'), S(30, { name: 'Variante Ascari' }), R(48, 60, 'Variante Ascari'),
-        S(30, { name: 'Variante Ascari' }), L(75, 40, 'Variante Ascari'),
-        S(900, { flex: true }),
-        R(150, 178, 'Curva Parabolica'),
-        S(420, { flex: true })
-      ],
+      id: 'monza', name: 'Monza', country: 'Italia', length: 5793, width: 12, kerb: 0.4, alt: 142,
+      cal: 0.894, geo: GEO_MONZA, shift: 0,
       ref: { 2026: 81.786 }
     },
     spa: {
       id: 'spa', name: 'Spa-Francorchamps', country: 'Belgio', length: 7004, width: 14, kerb: 0.4, alt: 400,
-      cal: 0.888, segs: [
-        S(367, { flex: true }),
-        R(26, 86, 'La Source'),
-        S(257),
-        L(160, 24, 'Eau Rouge'),
-        R(200, 69, 'Raidillon'),
-        L(400, 21, 'Raidillon'),
-        S(1248, { flex: true }),
-        R(48, 75, 'Les Combes'),
-        S(25, { name: 'Les Combes' }),
-        L(50, 52, 'Les Combes'),
-        S(234),
-        R(95, 90, 'Malmedy'),
-        S(149),
-        R(45, 131, 'Bruxelles'),
-        S(212),
-        L(150, 60, 'Pouhon'),
-        S(201, { flex: true }),
-        R(250, 31, 'Fagnes'),
-        L(250, 29, 'Fagnes'),
-        S(215, { flex: true }),
-        L(90, 39, 'Stavelot'),
-        S(306, { flex: true }),
-        L(650, 21, 'Blanchimont'),
-        S(676, { flex: true }),
-        L(35, 11, 'Bus Stop'),
-        S(18, { name: 'Bus Stop' }),
-        R(35, 135, 'Bus Stop'),
-        S(468, { flex: true })
-      ],
+      cal: 0.928, geo: GEO.spa, shift: 0,
       ref: { 2026: 104.361 }
     },
     monaco: {
       id: 'monaco', name: 'Monaco', country: 'Principato di Monaco', length: 3337, width: 10.5, kerb: -0.9, alt: 10,
-      cal: 0.937, segs: [
+      cal: 0.602, segs: [
         S(248, { flex: true }),
         R(20, 90, 'Sainte Devote'),
         S(383, { flex: true }),
@@ -447,7 +416,7 @@ tel[['Distance','Speed','nGear','Throttle','Brake']].to_csv('monza_pole.csv', in
     },
     silverstone: {
       id: 'silverstone', name: 'Silverstone', country: 'Regno Unito', length: 5891, width: 14, kerb: 0.4, alt: 130,
-      cal: 1.051, segs: [
+      cal: 0.636, segs: [
         S(420, { flex: true }), R(230, 45, 'Abbey'), S(60), L(260, 25, 'Farm'), S(80, { flex: true }),
         R(45, 100, 'Village'), S(60), L(40, 100, 'The Loop'), S(200, { flex: true }), L(110, 55, 'Aintree'),
         S(900, { flex: true }),
@@ -460,18 +429,14 @@ tel[['Distance','Speed','nGear','Throttle','Brake']].to_csv('monza_pole.csv', in
       ],
       ref: { 2026: 88.111 }
     },
+    shanghai: {
+      id: 'shanghai', name: 'Shanghai', country: 'Cina', length: 5451, width: 14, kerb: 0.4, alt: 14,
+      cal: 1.035, geo: GEO.shanghai, shift: 480,
+      ref: { 2026: 92.064 }
+    },
     lusail: {
-      id: 'lusail', name: 'Lusail (Qatar)', country: 'Qatar', length: 5419, width: 13, kerb: 0.4, alt: 10,
-      cal: 0.991, segs: [
-        S(1068),
-        R(70, 95, 'Curva 1'), S(50, { flex: true }), L(70, 50, 'Curva 2'), S(30), R(180, 30, 'Curva 3'),
-        S(110, { flex: true }), R(55, 90, 'Curva 4'), S(35), L(90, 30, 'Curva 5'), S(90, { flex: true }),
-        L(45, 110, 'Curva 6'), S(60, { flex: true }), R(80, 110, 'Curva 7'), S(110, { flex: true }),
-        L(300, 12, 'Curva 8'), S(90, { flex: true }), R(150, 50, 'Curva 9'), S(130, { flex: true }),
-        L(65, 70, 'Curva 10'), S(20), R(60, 60, 'Curva 11'), S(300, { flex: true }),
-        R(150, 50, 'Curva 12'), R(130, 60, 'Curva 13'), R(110, 70, 'Curva 14'), S(130, { flex: true }),
-        L(75, 55, 'Curva 15'), S(60, { flex: true }), R(95, 115, 'Curva 16'), S(70, { flex: true })
-      ],
+      id: 'lusail', name: 'Lusail (Qatar)', country: 'Qatar', length: 5419, width: 13, kerb: 0.4, alt: 5,
+      cal: 1.222, geo: GEO.lusail, shift: 590,
       ref: {}, est: { 2026: 82.36 }
     }
   };
@@ -482,8 +447,8 @@ tel[['Distance','Speed','nGear','Throttle','Brake']].to_csv('monza_pole.csv', in
   const CHAMPS = {
     f1: {
       id: 'f1', name: 'Formula 1 (2026)', tyre: 'Pirelli slick C1-C5',
-      note: 'Motore 400 kW + MGU-K 350 kW. Peso minimo 768 kg. Aderenza e carico tarati sulle pole 2026 di Monza, Spa, Monaco e Silverstone (scarto entro il 2%). Lusail è tarato su una stima ricavata dalla pole 2025, perché il GP 2026 non è ancora stato corso.',
-      car: { m: 790, P: 560, mu: 1.25, ClA: 4.1, CdA: 1.3, tf: 0.62, brk: 50, aMax: 17, gears: [78, 112, 148, 182, 216, 252, 290, 350] }
+      note: 'Motore 400 kW + MGU-K 350 kW. Peso minimo 768 kg. Parametri dell\'auto adattati alle pole 2026 di Monza, Spa e Shanghai, con tracciato reale; Monaco e Silverstone hanno forma schematica e un fattore di aderenza per pista, così i tempi coincidono con le pole 2026. Lusail usa il tracciato reale ed è tarato su una stima, perché la pole 2026 non è ancora stata corsa.',
+      car: { m: 790, P: 605, mu: 1.70, ClA: 5.8, CdA: 1.29, tf: 0.70, brk: 50, aMax: 17, gears: [78, 112, 148, 182, 216, 252, 290, 350] }
     },
     wec: {
       id: 'wec', name: 'WEC Hypercar', tyre: 'Michelin slick',
@@ -597,7 +562,38 @@ tel[['Distance','Speed','nGear','Throttle','Brake']].to_csv('monza_pole.csv', in
     return { segs, closureErr: Math.hypot(c[0], c[1]), headingErr: c[2], maxDelta: maxLen, angleScale: 1 + maxRel };
   }
 
+  function geoCenterline(track, ds) {
+    const g = track.geo, n = g.x.length, X = i => g.x[(i % n + n) % n], Y = i => g.y[(i % n + n) % n];
+    // spline Catmull-Rom centripetale chiusa, campionata fitta (ogni ~0.5 m)
+    const dx = [], dy = [];
+    for (let i = 0; i < n; i++) {
+      const P = [X(i - 1), Y(i - 1)], Q = [X(i), Y(i)], R = [X(i + 1), Y(i + 1)], S = [X(i + 2), Y(i + 2)];
+      const d1 = Math.sqrt(Math.hypot(Q[0] - P[0], Q[1] - P[1])) || 1e-3, d2 = Math.sqrt(Math.hypot(R[0] - Q[0], R[1] - Q[1])) || 1e-3, d3 = Math.sqrt(Math.hypot(S[0] - R[0], S[1] - R[1])) || 1e-3;
+      const seg = Math.hypot(R[0] - Q[0], R[1] - Q[1]), m = Math.max(2, Math.ceil(seg / 0.5));
+      const tan = (a, b, c, da, db) => [0, 1].map(k => ((b[k] - a[k]) / da - (c[k] - a[k]) / (da + db) + (c[k] - b[k]) / db) * db);
+      const m1 = tan(P, Q, R, d1, d2), m2 = tan(Q, R, S, d2, d3);
+      for (let j = 0; j < m; j++) {
+        const u = j / m, u2 = u * u, u3 = u2 * u;
+        const h00 = 2 * u3 - 3 * u2 + 1, h10 = u3 - 2 * u2 + u, h01 = -2 * u3 + 3 * u2, h11 = u3 - u2;
+        dx.push(h00 * Q[0] + h10 * m1[0] + h01 * R[0] + h11 * m2[0]); dy.push(h00 * Q[1] + h10 * m1[1] + h01 * R[1] + h11 * m2[1]);
+      }
+    }
+    const M = dx.length, ps = new Float64Array(M + 1);
+    for (let i = 0; i < M; i++) ps[i + 1] = ps[i] + Math.hypot(dx[(i + 1) % M] - dx[i], dy[(i + 1) % M] - dy[i]);
+    const Lp = ps[M], sc = track.length / Lp, N = Math.round(track.length / ds), h = track.length / N;
+    const s0 = ((Lp - (track.shift || 0) / sc) % Lp + Lp) % Lp;   // la partenza e' arretrata di `shift` metri
+    const cx = new Float64Array(N), cy = new Float64Array(N); let k = 0;
+    for (let i = 0; i < N; i++) {
+      const tt = (s0 + i * h / sc) % Lp; if (i === 0 || tt < ps[k]) k = 0;
+      while (k < M - 1 && ps[k + 1] < tt) k++;
+      const u = (tt - ps[k]) / ((ps[k + 1] - ps[k]) || 1);
+      cx[i] = (dx[k] + u * (dx[(k + 1) % M] - dx[k])) * sc; cy[i] = (dy[k] + u * (dy[(k + 1) % M] - dy[k])) * sc;
+    }
+    for (let r = 0; r < 18; r++) { const sx = cx.slice(), sy = cy.slice(); for (let i = 0; i < N; i++) { const a = (i - 1 + N) % N, b = (i + 1) % N; cx[i] = 0.25 * sx[a] + 0.5 * sx[i] + 0.25 * sx[b]; cy[i] = 0.25 * sy[a] + 0.5 * sy[i] + 0.25 * sy[b]; } }
+    return { cx, cy, N, ds: h, corners: [], closure: { closureErr: 0, maxDelta: 0, angleScale: 1 } };
+  }
   function buildCenterline(track, ds) {
+    if (track.geo) return geoCenterline(track, ds);
     const cl = closeSegments(track.segs);
     const px = [0], py = [0], ps = [0], segStart = [];
     let x = 0, y = 0, th = 0, s = 0;
@@ -834,14 +830,14 @@ tel[['Distance','Speed','nGear','Throttle','Brake']].to_csv('monza_pole.csv', in
       const vk = Array.from(v).map(x => x * 3.6), mins = [];
       for (let i = 0; i < N; i++) {
         let ok = true;
-        for (let k = 1; k <= 10 && ok; k++) if (vk[(i - k + N) % N] < vk[i] || vk[(i + k) % N] < vk[i]) ok = false;
+        for (let k = 1; k <= 5 && ok; k++) if (vk[(i - k + N) % N] < vk[i] || vk[(i + k) % N] < vk[i]) ok = false;
         if (!ok) continue;
         let lm = vk[i], rm = vk[i];
         for (let k = 1; k < N / 2; k++) { const x = vk[(i - k + N) % N]; if (x < vk[i]) break; lm = Math.max(lm, x); }
         for (let k = 1; k < N / 2; k++) { const x = vk[(i + k) % N]; if (x < vk[i]) break; rm = Math.max(rm, x); }
-        if (Math.min(lm, rm) - vk[i] >= 18) {
+        if (Math.min(lm, rm) - vk[i] >= 8) {
           const last = mins[mins.length - 1];
-          if (last && i - last < 40) { if (vk[i] < vk[last]) mins[mins.length - 1] = i; } else mins.push(i);
+          if (last && i - last < 10) { if (vk[i] < vk[last]) mins[mins.length - 1] = i; } else mins.push(i);
         }
       }
       defs = mins.map((i, n) => ({ name: 'Curva ' + (n + 1), start: i * cl.ds - 30, end: i * cl.ds + 30, dir: kap[i] > 0 ? 'L' : 'R', turn: 1 }));
@@ -1108,7 +1104,7 @@ tel[['Distance','Speed','nGear','Throttle','Brake']].to_csv('monza_pole.csv', in
   function overviewView() {
     const r = cur; let x0 = 1e9, x1 = -1e9, y0 = 1e9, y1 = -1e9;
     for (let i = 0; i < r.N; i++) { x0 = Math.min(x0, r.cx[i]); x1 = Math.max(x1, r.cx[i]); y0 = Math.min(y0, r.cy[i]); y1 = Math.max(y1, r.cy[i]); }
-    return fit(x0, x1, y0, y1, phone() ? { l: 24, r: 24, t: 28, b: 120 } : { l: 40, r: 40, t: 36, b: 124 });
+    return fit(x0, x1, y0, y1, phone() ? { l: 34, r: 34, t: 34, b: 154 } : { l: 40, r: 40, t: 64, b: 124 });
   }
   function cornerView(c) {
     const r = cur; let x0 = 1e9, x1 = -1e9, y0 = 1e9, y1 = -1e9;
@@ -1248,7 +1244,7 @@ tel[['Distance','Speed','nGear','Throttle','Brake']].to_csv('monza_pole.csv', in
         if (inside) { best = { c, n, inside: true, d: r.s[c.iApex] - r.s[i] }; bd = -1; } else if (d < bd) { bd = d; best = { c, n, d }; }
       });
       if (best.inside) { msg = 'FRENA · curva ' + (best.n + 1) + ' tra ' + f0(best.d) + ' m'; brk = true; }
-      else if (best.d < 900) msg = 'Curva ' + (best.n + 1) + ' ' + best.c.name + ' · ' + (best.c.iBrake != null ? 'frenata' : 'corda') + ' tra ' + f0(best.d) + ' m';
+      else if (best.d < 900) msg = (/^Curva \d+$/.test(best.c.name) ? best.c.name : 'Curva ' + (best.n + 1) + ' ' + best.c.name) + ' · ' + (best.c.iBrake != null ? 'frenata' : 'corda') + ' tra ' + f0(best.d) + ' m';
     }
     if (cmp) { const d = r.t[i] - tAtFrac(cmp, r.s[i] / r.length); msg += (msg ? ' · ' : '') + 'Δ ' + (d >= 0 ? '+' : '') + d.toFixed(2) + ' s'; }
     const b = $('#banner'); b.textContent = msg; b.className = 'banner' + (brk ? ' brk' : '');
